@@ -1,0 +1,25 @@
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE & Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Uploaded dynamic files (keep .gitkeep and default avatar)
+uploads/profil/*
+!uploads/profil/default.png
+!uploads/profil/.gitkeep
+
+uploads/materi/*
+!uploads/materi/.gitkeep
+
+uploads/tugas/*
+!uploads/tugas/.gitkeep
+
+# Logs and temp
+*.log
+*.tmp
