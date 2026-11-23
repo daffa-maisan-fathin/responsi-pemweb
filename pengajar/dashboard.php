@@ -3,7 +3,7 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/koneksi.php';
 cekRole('pengajar');
 
-$pageTitle = 'Dashboard Pengajar — Questudy';
+$pageTitle = 'Dashboard Tutor — Questudy';
 $userId = $_SESSION['id_user'];
 
 // 1. Total kelas yang diampu
@@ -11,7 +11,7 @@ $stmtK = $conn->prepare("SELECT COUNT(*) AS total_kelas FROM kelas WHERE id_peng
 $stmtK->execute([$userId]);
 $totalKelas = (int)$stmtK->fetch()['total_kelas'];
 
-// 2. Total mahasiswa unik yang dibimbing
+// 2. Total pelajar unik yang dibimbing
 $stmtMhs = $conn->prepare("
     SELECT COUNT(DISTINCT ak.id_pelajar) AS total_mhs 
     FROM anggota_kelas ak 
@@ -40,7 +40,7 @@ $bookingPending = (int)$stmtBookPending->fetch()['pending_book'];
 $stmtRule = $conn->query("SELECT * FROM peringatan_dini_aturan LIMIT 1");
 $rule = $stmtRule->fetch() ?: ['max_telat_tugas' => 2, 'min_rata_nilai' => 65, 'max_hari_tidak_login' => 5];
 
-// Query mahasiswa berisiko di kelas pengajar ini
+// Query pelajar berisiko di kelas pengajar ini
 $stmtAtRisk = $conn->prepare("
     SELECT DISTINCT u.id_user, u.nama, k.nama_kelas,
         (SELECT COUNT(*) FROM pengumpulan_tugas pt JOIN tugas t2 ON pt.id_tugas = t2.id_tugas WHERE pt.id_pelajar = u.id_user AND t2.id_kelas = k.id_kelas AND pt.status = 'terlambat') AS telat_count,
@@ -75,11 +75,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
     <div class="flex items-center gap-2 text-xs text-slate-500">
-        <span class="text-slate-800 font-semibold">Dashboard Pengajar</span>
+        <span class="text-slate-800 font-semibold">Dashboard Tutor</span>
     </div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800">Panel Pengajar & Evaluasi Kelas</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800">Panel Tutor & Evaluasi Kelas</h1>
             <p class="text-xs text-slate-500">Pantau aktivitas akademik kelas, sistem peringatan dini pelajar, dan permohonan bimbingan.</p>
         </div>
         <div class="flex items-center gap-2">
@@ -109,10 +109,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <p class="text-xs text-slate-500 mt-1">Kelas yang sedang Anda ampu.</p>
     </div>
 
-    <!-- Total Mahasiswa -->
+    <!-- Total Pelajar -->
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
         <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Mahasiswa</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pelajar</span>
             <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm border border-emerald-200">
                 <i class="fa-solid fa-users"></i>
             </span>
@@ -172,7 +172,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                     <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0066CC]">
                                         Kode: <?= e($kls['kode_kelas']); ?>
                                     </span>
-                                    <span class="text-xs text-slate-400"><?= (int)$kls['jml_siswa']; ?> Mahasiswa</span>
+                                    <span class="text-xs text-slate-400"><?= (int)$kls['jml_siswa']; ?> Pelajar</span>
                                 </div>
                                 <h3 class="text-sm font-bold text-slate-800"><?= e($kls['nama_kelas']); ?></h3>
                                 <p class="text-xs text-slate-500 line-clamp-1 mt-0.5"><?= e($kls['deskripsi'] ?: 'Tanpa deskripsi.'); ?></p>
@@ -212,7 +212,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <?php if (empty($pelajarBerisiko)): ?>
                 <div class="text-center py-6 text-slate-400 text-xs">
                     <i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2 block"></i>
-                    Semua mahasiswa berada dalam performa akademik yang baik!
+                    Semua pelajar berada dalam performa akademik yang baik!
                 </div>
             <?php else: ?>
                 <div class="space-y-3">

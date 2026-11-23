@@ -100,7 +100,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Konfigurasi Aturan & Moderasi Konten</h1>
-            <p class="text-xs text-slate-500">Sesuaikan formula XP gamifikasi, batas sensitivitas Early Warning, dan pantau konten perkuliahan.</p>
+            <p class="text-xs text-slate-500">Sesuaikan formula XP gamifikasi, batas sensitivitas Early Warning, dan pantau konten pembelajaran.</p>
         </div>
     </div>
 </div>
@@ -149,7 +149,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>
             <div>
                 <h2 class="text-base font-bold text-slate-800">Ambang Batas Peringatan Dini (EWS)</h2>
-                <p class="text-xs text-slate-400">Kriteria otomatis untuk menandai mahasiswa "Perlu Perhatian".</p>
+                <p class="text-xs text-slate-400">Kriteria otomatis untuk menandai pelajar "Perlu Perhatian".</p>
             </div>
         </div>
 

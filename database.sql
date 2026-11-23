@@ -1,7 +1,6 @@
 -- ========================================================
 -- DATABASE: db_questudy
 -- Platform: Questudy — LMS Gamifikasi, Ruang Belajar Pribadi, dan Peringatan Dini
--- Tema SDGs 4: Quality Education (Pendidikan Berkualitas)
 -- ========================================================
 
 CREATE DATABASE IF NOT EXISTS `db_questudy` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -9,6 +8,8 @@ USE `db_questudy`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `laporan`;
+DROP TABLE IF EXISTS `pengaturan_sistem`;
 DROP TABLE IF EXISTS `tindak_lanjut`;
 DROP TABLE IF EXISTS `peringatan_dini_aturan`;
 DROP TABLE IF EXISTS `planner`;
@@ -43,6 +44,8 @@ CREATE TABLE `users` (
   `role` ENUM('admin','pengajar','pelajar') NOT NULL,
   `status_akun` ENUM('aktif','nonaktif','pending') DEFAULT 'aktif',
   `keahlian` VARCHAR(255) NULL,
+  `deskripsi_tutor` TEXT NULL,
+  `portofolio_url` VARCHAR(255) NULL,
   `foto_profil` VARCHAR(255) DEFAULT 'default.png',
   `xp` INT DEFAULT 0,
   `level` INT DEFAULT 1,
@@ -58,6 +61,9 @@ CREATE TABLE `kelas` (
   `kode_kelas` VARCHAR(10) NOT NULL UNIQUE,
   `nama_kelas` VARCHAR(150) NOT NULL,
   `deskripsi` TEXT NULL,
+  `kategori` VARCHAR(50) NOT NULL DEFAULT 'Lainnya',
+  `tingkat` ENUM('pemula','menengah','lanjut') NOT NULL DEFAULT 'pemula',
+  `kuota` INT NOT NULL DEFAULT 20,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT `fk_kelas_pengajar` FOREIGN KEY (`id_pengajar`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -208,6 +214,7 @@ CREATE TABLE `booking_tutor` (
   `status` ENUM('pending','disetujui','selesai','dibatalkan') DEFAULT 'pending',
   `rating` INT NULL,
   `ulasan` TEXT NULL,
+  `alasan_batal` VARCHAR(255) NULL,
   CONSTRAINT `fk_booking_mahasiswa` FOREIGN KEY (`id_mahasiswa`) REFERENCES `users` (`id_user`) ON DELETE CASCADE,
   CONSTRAINT `fk_booking_tutor` FOREIGN KEY (`id_tutor`) REFERENCES `users` (`id_user`) ON DELETE CASCADE,
   CONSTRAINT `fk_booking_kelas` FOREIGN KEY (`id_kelas`) REFERENCES `kelas` (`id_kelas`) ON DELETE SET NULL
@@ -294,17 +301,38 @@ CREATE TABLE `tindak_lanjut` (
   CONSTRAINT `fk_tl_pelajar` FOREIGN KEY (`id_pelajar`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Pengaturan kuota & batas (dapat diubah admin lewat admin/pengaturan.php)
+CREATE TABLE `pengaturan_sistem` (
+  `kunci` VARCHAR(50) PRIMARY KEY,
+  `nilai` INT NOT NULL,
+  `keterangan` VARCHAR(150) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Laporan pelanggaran dari pengguna
+CREATE TABLE `laporan` (
+  `id_laporan` INT AUTO_INCREMENT PRIMARY KEY,
+  `id_pelapor` INT NOT NULL,
+  `id_terlapor` INT NULL,
+  `jenis` ENUM('tutor','pelajar','kelas','komentar','lainnya') NOT NULL,
+  `alasan` TEXT NOT NULL,
+  `status` ENUM('baru','diproses','selesai') NOT NULL DEFAULT 'baru',
+  `tindakan` VARCHAR(100) NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_pelapor`) REFERENCES `users`(`id_user`) ON DELETE CASCADE,
+  FOREIGN KEY (`id_terlapor`) REFERENCES `users`(`id_user`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ========================================================
 -- DATA DUMMY (SIAP DEMO DAN TESTING SEMUA FITUR)
 -- Catatan: Password semua akun adalah "123456"
 -- ========================================================
 
--- Users (1 Admin, 2 Pengajar aktif, 1 Pengajar pending, 3 Pelajar)
+-- Users (1 Admin, 2 Tutor aktif, 1 Tutor pending, 3 Pelajar)
 INSERT INTO `users` (`id_user`, `nama`, `email`, `password`, `role`, `status_akun`, `keahlian`, `foto_profil`, `xp`, `level`, `streak_harian`, `last_login`) VALUES
 (1, 'Administrator Questudy', 'admin@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'admin', 'aktif', 'Sistem Administrator & Analis Pendidikan', 'default.png', 0, 1, 1, NOW()),
-(2, 'Dr. Budi Santoso, M.Kom', 'pengajar@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'aktif', 'Web Development, PHP 8 & AI', 'default.png', 0, 1, 5, NOW()),
-(3, 'Siti Aminah, S.Pd., M.T.', 'siti@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'aktif', 'Basis Data MySQL & Desain UI/UX', 'default.png', 0, 1, 3, NOW()),
-(4, 'Reza Pratama, S.Kom', 'tutor.pending@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'pending', 'Cloud Computing & DevOps', 'default.png', 0, 1, 0, NULL),
+(2, 'Budi Santoso', 'pengajar@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'aktif', 'Web Development, PHP 8 & AI', 'default.png', 0, 1, 5, NOW()),
+(3, 'Siti Aminah', 'siti@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'aktif', 'Basis Data MySQL & Desain UI/UX', 'default.png', 0, 1, 3, NOW()),
+(4, 'Reza Pratama', 'tutor.pending@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pengajar', 'pending', 'Cloud Computing & DevOps', 'default.png', 0, 1, 0, NULL),
 (5, 'Ahmad Fauzi', 'pelajar@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pelajar', 'aktif', 'Frontend & Full-Stack Learner', 'default.png', 450, 5, 7, NOW()),
 (6, 'Dewi Lestari', 'dewi@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pelajar', 'aktif', 'UI/UX Enthusiast', 'default.png', 220, 3, 3, DATE_SUB(NOW(), INTERVAL 1 DAY)),
 (7, 'Rizky Ramadhan', 'rizky@questudy.id', '$2y$10$MaQbP4HlHjxX3JnrRuYJM.CnlmTgjtPEjwGKwgP0nlZqR0GuFDtym', 'pelajar', 'aktif', 'Junior Programmer', 'default.png', 40, 1, 0, DATE_SUB(NOW(), INTERVAL 8 DAY));
@@ -316,7 +344,7 @@ INSERT INTO `gamifikasi_aturan` (`id_aturan`, `aksi`, `keterangan`, `xp_didapat`
 (3, 'kumpul_tugas', 'Mengumpulkan Tugas Tepat Waktu', 50),
 (4, 'kuis_sempurna', 'Menyelesaikan Kuis dengan Skor Sempurna', 40),
 (5, 'sesi_pomodoro', 'Menuntaskan Sesi Fokus Belajar Pomodoro 25 Menit', 15),
-(6, 'sesi_tutor', 'Menyelesaikan Sesi Mentoring dengan Pengajar/Tutor', 30);
+(6, 'sesi_tutor', 'Menyelesaikan Sesi Mentoring dengan Tutor', 30);
 
 -- Badges
 INSERT INTO `badges` (`id_badge`, `nama_badge`, `deskripsi`, `syarat_xp`, `ikon`) VALUES
@@ -340,7 +368,7 @@ INSERT INTO `peringatan_dini_aturan` (`id_rule`, `max_telat_tugas`, `min_rata_ni
 
 -- Kelas (2 Kelas)
 INSERT INTO `kelas` (`id_kelas`, `id_pengajar`, `kode_kelas`, `nama_kelas`, `deskripsi`) VALUES
-(1, 2, 'PW2026', 'Pemrograman Web Lanjut (SDGs 4)', 'Mempelajari arsitektur web modern, PHP 8 Native, integrasi database relasional, dan implementasi UI/UX ramah pengguna yang inklusif.'),
+(1, 2, 'PW2026', 'Pemrograman Web', 'Mempelajari arsitektur web modern, PHP 8 Native, integrasi database relasional, dan implementasi UI/UX ramah pengguna yang inklusif.'),
 (2, 3, 'BD2026', 'Basis Data & SQL Komprehensif', 'Perancangan skema relasional, normalisasi 1NF-3NF, optimalisasi query MySQL, dan keamanan data aplikasi.');
 
 -- Anggota Kelas
@@ -353,7 +381,7 @@ INSERT INTO `anggota_kelas` (`id_kelas`, `id_pelajar`, `bergabung_pada`) VALUES
 
 -- Pengumuman Kelas
 INSERT INTO `pengumuman` (`id_pengumuman`, `id_kelas`, `judul`, `isi`, `created_at`) VALUES
-(1, 1, 'Selamat Datang di Pembelajaran Interaktif Questudy!', 'Selamat datang seluruh mahasiswa! Mari bersama wujudkan SDGs 4 (Pendidikan Berkualitas) melalui eksplorasi kode yang disiplin dan menyenangkan.', DATE_SUB(NOW(), INTERVAL 9 DAY)),
+(1, 1, 'Selamat Datang di Pembelajaran Interaktif Questudy!', 'Selamat datang! Mari belajar dengan disiplin dan menyenangkan. Kumpulkan XP dari setiap materi, tugas, dan kuis.', DATE_SUB(NOW(), INTERVAL 9 DAY)),
 (2, 1, 'Pengingat: Tugas 02 & Kuis 01 Sudah Dibuka', 'Pastikan membaca materi pendukung terlebih dahulu di menu Materi sebelum mengerjakan kuis dan mengunggah tugas.', DATE_SUB(NOW(), INTERVAL 2 DAY)),
 (3, 2, 'Materi Normalisasi Relasional Telah Tersedia', 'Silakan unduh dokumen panduan perancangan relasi database di tab Materi.', DATE_SUB(NOW(), INTERVAL 7 DAY));
 
@@ -407,7 +435,7 @@ INSERT INTO `soal_kuis` (`id_soal`, `id_kuis`, `pertanyaan`, `opsi_a`, `opsi_b`,
 (1, 1, 'Fitur PHP 8 yang memungkinkan penulisan tipe data gabungan (misalnya int|float) disebut...', 'Named Arguments', 'Union Types', 'Match Expression', 'Nullsafe Operator', 'b'),
 (2, 1, 'Fungsi PHP standar yang paling aman dan direkomendasikan untuk mengenkripsi password dengan algoritma bcrypt adalah...', 'md5()', 'sha1()', 'password_hash()', 'crypt()', 'c'),
 (3, 1, 'Konfigurasi PDO untuk melempar eksepsi secara otomatis ketika terjadi kegagalan query SQL adalah...', 'PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION', 'PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT', 'PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC', 'PDO::ATTR_AUTOCOMMIT => false', 'a'),
-(4, 1, 'Target Tujuan Pembangunan Berkelanjutan (SDGs) Nomor 4 berfokus pada pilar...', 'Pemberantasan Kemiskinan', 'Energi Bersih dan Terjangkau', 'Pendidikan Berkualitas, Inklusif, dan Merata', 'Ekosistem Daratan yang Lestari', 'c'),
+(4, 1, 'Fungsi PHP untuk memulai atau melanjutkan session adalah...', 'session_open()', 'session_start()', 'start_session()', 'session_begin()', 'b'),
 (5, 1, 'Class Tailwind CSS manakah yang digunakan untuk membuat sudut kartu berbentuk melengkung halus?', 'rounded-none', 'rounded-xl', 'border-radius-10', 'corner-smooth', 'b');
 
 -- Soal Kuis (Kuis 2)
@@ -439,7 +467,7 @@ INSERT INTO `sesi_pomodoro` (`id_sesi`, `id_pelajar`, `durasi_menit`, `tanggal`,
 -- Flashcards
 INSERT INTO `flashcards` (`id_card`, `id_pelajar`, `pertanyaan`, `jawaban`, `status_hafal`) VALUES
 (1, 5, 'Apa fungsi utama dari PDO Prepared Statements?', 'Mencegah SQL Injection dengan memisahkan kode query dan data input pengguna.', 'hafal'),
-(2, 5, 'Apa fokus utama dari SDGs 4?', 'Menjamin pendidikan yang inklusif dan berkualitas setara, serta mendukung kesempatan belajar seumur hidup.', 'hafal'),
+(2, 5, 'Apa fungsi session_start() di PHP?', 'Memulai atau melanjutkan session agar data pengguna bisa dipakai di banyak halaman.', 'hafal'),
 (3, 5, 'Apa perbedaan klausa WHERE dan HAVING di SQL?', 'WHERE menyaring baris sebelum pengelompokan (GROUP BY), sedangkan HAVING menyaring data hasil fungsi agregasi.', 'belum'),
 (4, 6, 'Bagaimana cara mencegah celah Cross-Site Scripting (XSS)?', 'Lakukan sanitasi dan encoding seluruh output data yang bersumber dari user dengan htmlspecialchars().', 'hafal');
 
@@ -453,3 +481,34 @@ INSERT INTO `planner` (`id_plan`, `id_pelajar`, `judul_target`, `tanggal_target`
 -- Tindak Lanjut Early Warning
 INSERT INTO `tindak_lanjut` (`id_tl`, `id_kelas`, `id_pengajar`, `id_pelajar`, `catatan_tindak_lanjut`, `created_at`) VALUES
 (1, 1, 2, 7, 'Siswa telah dihubungi melalui pesan pengingat untuk sesi mentoring privat dan asistensi remedial tugas.', DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+-- ========================================================
+-- DATA TAMBAHAN: profil tutor, kategori kelas, kuota, pengaturan
+-- ========================================================
+UPDATE `users` SET `keahlian`='Pemrograman Web, Basis Data', `deskripsi_tutor`='Pengembang web dengan pengalaman mengajar pemula. Fokus pada PHP, MySQL, dan dasar pemrograman.', `portofolio_url`='https://contoh.dev/budi' WHERE `id_user`=2;
+UPDATE `users` SET `keahlian`='Desain UI/UX, Desain Grafis', `deskripsi_tutor`='Desainer antarmuka yang suka membimbing pemula membuat desain rapi dan mudah dipakai.', `portofolio_url`='https://contoh.dev/siti' WHERE `id_user`=3;
+UPDATE `users` SET `keahlian`='Cloud Computing, DevOps', `deskripsi_tutor`='Praktisi infrastruktur cloud yang ingin berbagi dasar-dasar deployment aplikasi.', `portofolio_url`='https://contoh.dev/reza' WHERE `id_user`=4;
+
+UPDATE `kelas` SET `kategori`='Teknologi', `tingkat`='pemula', `kuota`=20 WHERE `id_kelas`=1;
+UPDATE `kelas` SET `kategori`='Teknologi', `tingkat`='menengah', `kuota`=20 WHERE `id_kelas`=2;
+
+INSERT INTO `kelas` (`id_kelas`, `id_pengajar`, `kode_kelas`, `nama_kelas`, `deskripsi`, `kategori`, `tingkat`, `kuota`) VALUES
+(3, 3, 'DG2026', 'Desain Grafis untuk Pemula', 'Belajar dasar komposisi, warna, dan tipografi, lalu membuat poster dan media sosial sederhana.', 'Desain', 'pemula', 15);
+
+INSERT INTO `materi` (`id_kelas`, `judul`, `tipe`, `konten_teks`, `urutan`) VALUES
+(3, 'Dasar Komposisi dan Hierarki Visual', 'teks', 'Komposisi yang baik membuat mata pembaca mengikuti urutan informasi: judul, subjudul, isi, lalu ajakan bertindak. Latih dengan satu poster sederhana.', 1),
+(3, 'Memilih Warna dan Font', 'teks', 'Gunakan maksimal dua font dan tiga warna utama. Pastikan kontras teks dan latar cukup agar mudah dibaca.', 2);
+
+INSERT INTO `pengumuman` (`id_kelas`, `judul`, `isi`) VALUES
+(3, 'Selamat datang di kelas Desain Grafis', 'Siapkan laptop atau HP, dan pilih satu topik poster yang ingin kamu buat selama kelas berlangsung.');
+
+INSERT INTO `pengaturan_sistem` (`kunci`, `nilai`, `keterangan`) VALUES
+('kuota_kelas_default', 20, 'Kuota peserta bawaan saat tutor membuat kelas'),
+('maks_kelas_tutor', 3, 'Maksimal kelas yang dimiliki satu tutor'),
+('maks_kelas_pelajar', 5, 'Maksimal kelas yang diikuti satu pelajar'),
+('maks_booking_mingguan', 10, 'Maksimal sesi booking per tutor dalam satu minggu'),
+('maks_booking_pending', 2, 'Maksimal booking berstatus menunggu per pelajar'),
+('batas_batal_jam', 2, 'Batas pembatalan booking (jam sebelum sesi)');
+
+INSERT INTO `laporan` (`id_pelapor`, `id_terlapor`, `jenis`, `alasan`, `status`) VALUES
+(6, 7, 'pelajar', 'Komentar di forum materi kurang sopan dan mengganggu diskusi.', 'baru');

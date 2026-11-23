@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $msg = 'Terima kasih! Ulasan dan rating bintang berhasil disimpan.';
         if ($isFirstTimeRating) {
             $rw = tambahXP($conn, $userId, 'sesi_tutor');
-            $msg .= ' 🎉 Anda mendapatkan bonus +30 XP atas kontribusi mentoring!';
+            $msg .= ' Anda mendapatkan bonus +30 XP atas kontribusi mentoring!';
             if (!empty($rw['badges_baru'])) {
-                $msg .= ' 🏆 Anda membuka badge: ' . implode(', ', $rw['badges_baru']);
+                $msg .= ' Anda membuka badge: ' . implode(', ', $rw['badges_baru']);
             }
         }
 

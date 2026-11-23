@@ -18,23 +18,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if ($idTutor <= 0 || empty($tanggalSesi) || empty($jamSesi)) {
         $errorBooking = 'Tutor, tanggal sesi, dan jam sesi wajib dipilih!';
-    } elseif ($tanggalSesi < date('Y-m-d')) {
-        $errorBooking = 'Tanggal sesi mentoring tidak boleh tanggal yang sudah lewat!';
+    } elseif ($tanggalSesi < date('Y-m-d') || ($tanggalSesi === date('Y-m-d') && $jamSesi <= date('H:i'))) {
+        $errorBooking = 'Waktu sesi harus berada di masa depan!';
     } else {
+        $maksPending = getPengaturan($conn, 'maks_booking_pending', 2);
+        $maksMingguan = getPengaturan($conn, 'maks_booking_mingguan', 10);
+
+        $stmtP = $conn->prepare("SELECT COUNT(*) FROM booking_tutor WHERE id_mahasiswa = ? AND status = 'pending'");
+        $stmtP->execute([$userId]);
+        $jumlahPending = (int)$stmtP->fetchColumn();
+
+        $stmtT = $conn->prepare("SELECT COUNT(*) FROM booking_tutor WHERE id_tutor = ? AND tanggal_sesi = ? AND jam_sesi = ? AND status IN ('pending','disetujui')");
+        $stmtT->execute([$idTutor, $tanggalSesi, $jamSesi]);
+        $bentrokTutor = (int)$stmtT->fetchColumn() > 0;
+
+        $stmtS = $conn->prepare("SELECT COUNT(*) FROM booking_tutor WHERE id_mahasiswa = ? AND tanggal_sesi = ? AND jam_sesi = ? AND status IN ('pending','disetujui')");
+        $stmtS->execute([$userId, $tanggalSesi, $jamSesi]);
+        $bentrokSendiri = (int)$stmtS->fetchColumn() > 0;
+
+        $stmtM = $conn->prepare("SELECT COUNT(*) FROM booking_tutor WHERE id_tutor = ? AND YEARWEEK(tanggal_sesi, 1) = YEARWEEK(?, 1) AND status IN ('pending','disetujui','selesai')");
+        $stmtM->execute([$idTutor, $tanggalSesi]);
+        $jumlahMingguan = (int)$stmtM->fetchColumn();
+
+        if ($jumlahPending >= $maksPending) {
+            $errorBooking = 'Anda masih memiliki ' . $jumlahPending . ' booking yang menunggu konfirmasi (maksimal ' . $maksPending . ').';
+        } elseif ($bentrokTutor) {
+            $errorBooking = 'Tutor sudah memiliki sesi pada tanggal dan jam tersebut. Pilih waktu lain.';
+        } elseif ($bentrokSendiri) {
+            $errorBooking = 'Anda sudah memiliki sesi pada tanggal dan jam tersebut.';
+        } elseif ($jumlahMingguan >= $maksMingguan) {
+            $errorBooking = 'Jadwal tutor pada minggu tersebut sudah penuh. Pilih minggu lain.';
+        } else {
         $stmtIns = $conn->prepare("
             INSERT INTO booking_tutor (id_mahasiswa, id_tutor, id_kelas, tanggal_sesi, jam_sesi, catatan, status)
             VALUES (?, ?, ?, ?, ?, ?, 'pending')
         ");
         $stmtIns->execute([$userId, $idTutor, $idKelas, $tanggalSesi, $jamSesi, $catatan ?: null]);
 
-        setFlash('success', 'Permintaan booking mentoring berhasil diajukan! Menunggu konfirmasi dari Tutor/Pengajar.');
+        setFlash('success', 'Permintaan booking mentoring berhasil diajukan! Menunggu konfirmasi dari Tutor.');
         header("Location: " . base_url('pelajar/booking_tutor.php'));
         exit();
+        }
     }
 }
 
-// Ambil daftar Pengajar/Tutor aktif
-$stmtTutor = $conn->query("SELECT id_user, nama, keahlian, foto_profil FROM users WHERE role = 'pengajar' AND status_akun = 'aktif' ORDER BY nama ASC");
+// Handle Pembatalan Booking oleh Pelajar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'batal_booking') {
+    $idB = (int)($_POST['id_booking'] ?? 0);
+    $alasan = trim($_POST['alasan_batal'] ?? '');
+    $stmtGet = $conn->prepare("SELECT tanggal_sesi, jam_sesi, status FROM booking_tutor WHERE id_booking = ? AND id_mahasiswa = ?");
+    $stmtGet->execute([$idB, $userId]);
+    $bk = $stmtGet->fetch();
+    $batasJam = getPengaturan($conn, 'batas_batal_jam', 2);
+
+    if (!$bk || !in_array($bk['status'], ['pending', 'disetujui'])) {
+        setFlash('error', 'Booking tidak ditemukan atau tidak bisa dibatalkan.');
+    } elseif (strtotime($bk['tanggal_sesi'] . ' ' . $bk['jam_sesi']) - time() < $batasJam * 3600) {
+        setFlash('error', 'Pembatalan hanya bisa dilakukan paling lambat ' . $batasJam . ' jam sebelum sesi.');
+    } else {
+        $stmtBatal = $conn->prepare("UPDATE booking_tutor SET status = 'dibatalkan', alasan_batal = ? WHERE id_booking = ? AND id_mahasiswa = ?");
+        $stmtBatal->execute([$alasan ?: 'Dibatalkan oleh pelajar', $idB, $userId]);
+        setFlash('info', 'Booking berhasil dibatalkan.');
+    }
+    header("Location: " . base_url('pelajar/booking_tutor.php'));
+    exit();
+}
+
+// Ambil daftar Tutor aktif
+$stmtTutor = $conn->query("SELECT id_user, nama, keahlian, foto_profil, (SELECT ROUND(AVG(rating), 1) FROM booking_tutor bt WHERE bt.id_tutor = users.id_user AND bt.rating IS NOT NULL) AS rata_rating FROM users WHERE role = 'pengajar' AND status_akun = 'aktif' ORDER BY nama ASC");
 $daftarTutor = $stmtTutor->fetchAll();
 
 // Ambil daftar kelas yang diikuti pelajar
@@ -73,7 +124,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Booking Sesi Mentoring Privat</h1>
-            <p class="text-xs text-slate-500">Jadwalkan konsultasi akademik daring 1-on-1 bersama Pengajar atau Tutor terpercaya.</p>
+            <p class="text-xs text-slate-500">Jadwalkan konsultasi akademik daring 1-on-1 bersama Tutor atau Tutor terpercaya.</p>
         </div>
     </div>
 </div>
@@ -99,19 +150,17 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <input type="hidden" name="action" value="booking_tutor">
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Tutor / Pengajar</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Tutor</label>
                 <select name="id_tutor" required class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
                     <option value="">-- Pilih Tutor Tersedia --</option>
                     <?php foreach ($daftarTutor as $t): ?>
-                        <option value="<?= $t['id_user']; ?>">
-                            <?= e($t['nama']); ?> (<?= e($t['keahlian'] ?: 'Akademik'); ?>)
-                        </option>
+                        <option value="<?= $t['id_user']; ?>"><?= e($t['nama']); ?> — <?= e($t['keahlian'] ?? 'Tutor'); ?><?= $t['rata_rating'] ? ' (rating ' . $t['rata_rating'] . ')' : ''; ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Topik Mata Kuliah / Kelas (Opsional)</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Topik Mata Pelajaran / Kelas (Opsional)</label>
                 <select name="id_kelas" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
                     <option value="">-- Umum / Non-Kelas --</option>
                     <?php foreach ($daftarKelas as $k): ?>
@@ -222,6 +271,14 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            <?php if (in_array($rb['status'], ['pending', 'disetujui'])): ?>
+                                <form action="" method="POST" onsubmit="return confirm('Batalkan sesi ini?');" class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                                    <input type="hidden" name="action" value="batal_booking">
+                                    <input type="hidden" name="id_booking" value="<?= (int)$rb['id_booking']; ?>">
+                                    <input type="text" name="alasan_batal" placeholder="Alasan pembatalan (opsional)" class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300">
+                                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold">Batalkan</button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>

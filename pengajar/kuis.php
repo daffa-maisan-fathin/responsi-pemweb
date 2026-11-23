@@ -136,7 +136,7 @@ if (!empty($daftarKuis)) {
     $stmtSList->execute([$idKuisAktif]);
     $soalList = $stmtSList->fetchAll();
 
-    // Ambil rekap pengerjaan mahasiswa
+    // Ambil rekap pengerjaan pelajar
     $stmtHList = $conn->prepare("
         SELECT hk.*, u.nama, u.email, u.foto_profil
         FROM hasil_kuis hk
@@ -161,7 +161,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Kuis & Bank Soal Pilihan Ganda</h1>
-            <p class="text-xs text-slate-500">Konfigurasi batas durasi menit, batas percobaan, input soal, dan pantau skor mahasiswa.</p>
+            <p class="text-xs text-slate-500">Konfigurasi batas durasi menit, batas percobaan, input soal, dan pantau skor pelajar.</p>
         </div>
         <div>
             <form action="" method="GET" class="flex items-center gap-2">
@@ -243,7 +243,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                 <h5 class="text-xs font-bold text-slate-800 line-clamp-1"><?= e($q['judul']); ?></h5>
                                 <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                                     <span><?= (int)$q['durasi_menit']; ?>m &bull; <?= (int)$q['total_soal']; ?> Soal</span>
-                                    <span class="font-bold text-[#0066CC]"><?= (int)$q['siswa_mengerjakan']; ?> Mahasiswa</span>
+                                    <span class="font-bold text-[#0066CC]"><?= (int)$q['siswa_mengerjakan']; ?> Pelajar</span>
                                 </div>
                             </a>
                             <form action="" method="POST" onsubmit="return confirm('Hapus kuis ini beserta bank soal dan hasil ujiannya?');">
@@ -381,20 +381,20 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <?php endif; ?>
             </div>
 
-            <!-- REKAP HASIL PENGERJAAN MAHASISWA -->
+            <!-- REKAP HASIL PENGERJAAN PELAJAR -->
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm space-y-4">
                 <h3 class="text-sm font-bold text-slate-800 pb-2 border-b border-slate-100">
-                    Rekap Nilai Pengerjaan Mahasiswa (<?= count($hasilList); ?>)
+                    Rekap Nilai Pengerjaan Pelajar (<?= count($hasilList); ?>)
                 </h3>
 
                 <?php if (empty($hasilList)): ?>
-                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada mahasiswa yang menyelesaikan kuis ini.</p>
+                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada pelajar yang menyelesaikan kuis ini.</p>
                 <?php else: ?>
                     <div class="overflow-x-auto rounded-xl border border-slate-200">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                                 <tr>
-                                    <th class="p-3">Nama Mahasiswa</th>
+                                    <th class="p-3">Nama Pelajar</th>
                                     <th class="p-3">Percobaan</th>
                                     <th class="p-3">Waktu Selesai</th>
                                     <th class="p-3 text-right">Skor Kuis</th>

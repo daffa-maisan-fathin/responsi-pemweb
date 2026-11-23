@@ -188,7 +188,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Materi & Forum Diskusi</h1>
-            <p class="text-xs text-slate-500">Unggah bahan ajar teks, PDF, tautan dan pantau mahasiswa yang telah menyelesaikan modul.</p>
+            <p class="text-xs text-slate-500">Unggah bahan ajar teks, PDF, tautan dan pantau pelajar yang telah menyelesaikan modul.</p>
         </div>
         <div>
             <form action="" method="GET" class="flex items-center gap-2">
@@ -313,7 +313,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-12 text-center shadow-sm">
                 <i class="fa-solid fa-book-open-reader text-4xl text-slate-300 mb-3 block"></i>
                 <h3 class="text-base font-bold text-slate-700">Pilih Materi Pembelajaran</h3>
-                <p class="text-xs text-slate-400 mt-1">Pilih salah satu materi di sisi kiri untuk melihat konten, daftar mahasiswa yang selesai, dan forum diskusi.</p>
+                <p class="text-xs text-slate-400 mt-1">Pilih salah satu materi di sisi kiri untuk melihat konten, daftar pelajar yang selesai, dan forum diskusi.</p>
             </div>
         <?php else: ?>
 
@@ -346,12 +346,12 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </div>
             </div>
 
-            <!-- PROGRES KELULUSAN MAHASISWA -->
+            <!-- PROGRES KELULUSAN PELAJAR -->
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                        <h3 class="text-sm font-bold text-slate-800">Mahasiswa yang Sudah Menyelesaikan Modul Ini</h3>
+                        <h3 class="text-sm font-bold text-slate-800">Pelajar yang Sudah Menyelesaikan Modul Ini</h3>
                     </div>
                     <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                         <?= count($siswaSelesaiList); ?> Siswa
@@ -359,7 +359,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </div>
 
                 <?php if (empty($siswaSelesaiList)): ?>
-                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada mahasiswa yang menandai selesai materi ini.</p>
+                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada pelajar yang menandai selesai materi ini.</p>
                 <?php else: ?>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <?php foreach ($siswaSelesaiList as $ss): ?>
@@ -417,7 +417,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     </div>
                 <?php endif; ?>
 
-                <!-- Form Balas Komentar Pengajar -->
+                <!-- Form Balas Komentar Tutor -->
                 <form action="" method="POST" class="pt-2 flex gap-2">
                     <input type="hidden" name="action" value="balas_forum">
                     <input type="hidden" name="id_materi" value="<?= $materiAktif['id_materi']; ?>">

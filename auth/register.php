@@ -16,6 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $konfirmasi = $_POST['konfirmasi_password'] ?? '';
     $role = $_POST['role'] ?? 'pelajar';
     $keahlian = trim($_POST['keahlian'] ?? '');
+    $deskripsiTutor = trim($_POST['deskripsi_tutor'] ?? '');
+    $portofolio = trim($_POST['portofolio_url'] ?? '');
+    $setuju = isset($_POST['setuju']);
 
     // Validasi
     if (empty($nama) || empty($email) || empty($password)) {
@@ -28,6 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Konfirmasi kata sandi tidak cocok!';
     } elseif (!in_array($role, ['pelajar', 'pengajar'])) {
         $error = 'Peran yang dipilih tidak valid!';
+    } elseif (!$setuju) {
+        $error = 'Anda harus menyetujui aturan penggunaan untuk mendaftar!';
+    } elseif ($role === 'pengajar' && ($keahlian === '' || strlen($deskripsiTutor) < 30 || !filter_var($portofolio, FILTER_VALIDATE_URL))) {
+        $error = 'Tutor wajib mengisi keahlian, deskripsi (minimal 30 karakter), dan tautan portofolio yang valid!';
     } else {
         // Cek email ganda
         $stmtCheck = $conn->prepare("SELECT id_user FROM users WHERE email = ? LIMIT 1");
@@ -38,18 +45,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Hash password
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
             
-            // Status Akun: Pengajar butuh persetujuan admin (pending), Pelajar langsung aktif
+            // Status Akun: Tutor butuh persetujuan admin (pending), Pelajar langsung aktif
             $statusAkun = ($role === 'pengajar') ? 'pending' : 'aktif';
 
             $stmtInsert = $conn->prepare("
-                INSERT INTO users (nama, email, password, role, status_akun, keahlian, foto_profil, xp, level, streak_harian, created_at)
-                VALUES (?, ?, ?, ?, ?, 'default.png', 0, 1, 1, NOW())
+                INSERT INTO users (nama, email, password, role, status_akun, keahlian, deskripsi_tutor, portofolio_url, foto_profil, xp, level, streak_harian, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'default.png', 0, 1, 1, NOW())
             ");
-            $success = $stmtInsert->execute([$nama, $email, $hashedPassword, $role, $statusAkun, $keahlian ?: null]);
+            $success = $stmtInsert->execute([$nama, $email, $hashedPassword, $role, $statusAkun, $keahlian ?: null, ($role === 'pengajar') ? $deskripsiTutor : null, ($role === 'pengajar') ? $portofolio : null]);
 
             if ($success) {
                 if ($role === 'pengajar') {
-                    setFlash('warning', 'Pendaftaran berhasil! Akun Pengajar Anda saat ini berstatus PENDING dan sedang menunggu verifikasi dari Administrator.');
+                    setFlash('warning', 'Pendaftaran berhasil! Akun Tutor Anda saat ini berstatus PENDING dan sedang menunggu verifikasi dari Administrator.');
                 } else {
                     setFlash('success', 'Pendaftaran berhasil! Akun Pelajar Anda telah aktif. Silakan masuk.');
                 }
@@ -84,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="fa-solid fa-user-plus"></i>
             </div>
             <h1 class="text-2xl font-extrabold tracking-tight">Daftar Questudy</h1>
-            <p class="text-xs text-blue-200 mt-1">Bergabunglah dalam Ekosistem Belajar Inklusif SDGs 4</p>
+            <p class="text-xs text-blue-200 mt-1">Bergabunglah dan mulai belajar lebih konsisten</p>
         </div>
 
         <div class="p-6 sm:p-8">
@@ -122,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-blue-400 cursor-pointer transition has-[:checked]:border-[#0066CC] has-[:checked]:bg-blue-50/50">
                             <input type="radio" name="role" value="pengajar" class="text-[#0066CC] focus:ring-[#0066CC]" <?= (($_POST['role'] ?? '') === 'pengajar') ? 'checked' : ''; ?>>
                             <div>
-                                <div class="text-xs font-bold text-slate-800">Pengajar</div>
+                                <div class="text-xs font-bold text-slate-800">Tutor</div>
                                 <div class="text-[10px] text-amber-600">Perlu Verifikasi</div>
                             </div>
                         </label>
@@ -130,8 +137,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Keahlian / Bidang Minat (Opsional)</label>
-                    <input type="text" name="keahlian" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition" placeholder="Contoh: Web Development, Algoritma, UI/UX" value="<?= e($_POST['keahlian'] ?? ''); ?>">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Keahlian atau Bidang Minat</label>
+                    <input type="text" name="keahlian" value="<?= e($_POST['keahlian'] ?? ''); ?>" placeholder="Contoh: Desain grafis, Bahasa Inggris" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
+                </div>
+
+                <div id="blokTutor" class="space-y-4 <?= (($_POST['role'] ?? '') === 'pengajar') ? '' : 'hidden'; ?>">
+                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+                        Akun Tutor perlu disetujui admin sebelum bisa membuat kelas. Isi data berikut dengan lengkap.
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Deskripsi Pengalaman</label>
+                        <textarea name="deskripsi_tutor" rows="3" placeholder="Ceritakan pengalaman dan apa yang bisa kamu ajarkan (minimal 30 karakter)" class="w-full p-3 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition"><?= e($_POST['deskripsi_tutor'] ?? ''); ?></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tautan Portofolio</label>
+                        <input type="url" name="portofolio_url" value="<?= e($_POST['portofolio_url'] ?? ''); ?>" placeholder="https://..." class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -144,6 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="password" name="konfirmasi_password" required class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition" placeholder="Sama dengan sandi">
                     </div>
                 </div>
+
+                <label class="flex items-start gap-2 text-sm text-slate-600">
+                    <input type="checkbox" name="setuju" class="mt-1" <?= isset($_POST['setuju']) ? 'checked' : ''; ?>>
+                    <span>Saya setuju untuk menggunakan platform ini dengan sopan, jujur, dan tidak menyalahgunakan akun.</span>
+                </label>
 
                 <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm shadow-md shadow-blue-500/20 transition duration-150">
                     Daftar Sekarang
@@ -163,5 +189,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+<script>
+    document.querySelectorAll('input[name="role"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+            var tutor = document.querySelector('input[name="role"]:checked').value === 'pengajar';
+            document.getElementById('blokTutor').classList.toggle('hidden', !tutor);
+        });
+    });
+    </script>
 </body>
 </html>

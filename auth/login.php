@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Aliases
-        if (in_array(strtolower($rawInput), ['tutor', 'dosen', 'pengajar'])) {
+        if (in_array(strtolower($rawInput), ['tutor', 'pengajar', 'pengajar'])) {
             $candidates[] = 'pengajar@questudy.id';
         }
         if (in_array(strtolower($rawInput), ['mahasiswa', 'siswa', 'pelajar', 'mhs'])) {
@@ -50,25 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute($params);
         $user = $stmt->fetch();
 
-        // Validasi password dengan bcrypt atau fallback toleransi demo 123456
+        // Validasi password dengan bcrypt
         $passwordValid = false;
         if ($user) {
-            if (password_verify($password, $user['password']) || password_verify($passwordTrimmed, $user['password']) || $passwordTrimmed === '123456') {
+            if (password_verify($password, $user['password']) || password_verify($passwordTrimmed, $user['password'])) {
                 $passwordValid = true;
-                
-                // Jika hash di database lama, perbarui dengan hash bcrypt standar
-                if (!password_verify($passwordTrimmed, $user['password'])) {
-                    $newHash = password_hash($passwordTrimmed, PASSWORD_BCRYPT);
-                    $stmtRehash = $conn->prepare("UPDATE users SET password = ? WHERE id_user = ?");
-                    $stmtRehash->execute([$newHash, $user['id_user']]);
-                }
             }
         }
 
         if ($user && $passwordValid) {
             // Cek status akun
             if ($user['status_akun'] === 'pending') {
-                $error = 'Akun Pengajar Anda masih dalam proses peninjauan & verifikasi oleh Administrator. Mohon menunggu aktivasi.';
+                $error = 'Akun Tutor Anda masih dalam proses peninjauan & verifikasi oleh Administrator. Mohon menunggu aktivasi.';
             } elseif ($user['status_akun'] === 'nonaktif') {
                 $error = 'Akun Anda dinonaktifkan oleh administrator. Silakan hubungi admin@questudy.id.';
             } else {
@@ -125,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
         } else {
-            $error = 'Kombinasi email atau kata sandi tidak cocok! Pastikan email terdaftar dan kata sandi benar (default demo: 123456).';
+            $error = 'Kombinasi email atau kata sandi tidak cocok! Pastikan email terdaftar dan kata sandi benar.';
         }
     }
 }
@@ -135,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — Questudy LMS SDGs 4</title>
+    <title>Masuk — Questudy</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -153,9 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <h1 class="text-2xl font-extrabold tracking-tight">Questudy</h1>
             <p class="text-xs text-blue-200 mt-1">LMS Gamifikasi, Ruang Belajar & Peringatan Dini</p>
-            <div class="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold border border-emerald-400/30">
-                SDGs 4: Quality Education
-            </div>
         </div>
 
         <div class="p-6 sm:p-8">
@@ -210,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fa-solid fa-shield-halved block text-sm mb-0.5"></i> Admin
                     </button>
                     <button type="button" onclick="isiDemo('pengajar@questudy.id')" class="p-2 text-center rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0066CC] text-[11px] font-bold border border-blue-200 transition">
-                        <i class="fa-solid fa-chalkboard-user block text-sm mb-0.5"></i> Pengajar
+                        <i class="fa-solid fa-chalkboard-user block text-sm mb-0.5"></i> Tutor
                     </button>
                     <button type="button" onclick="isiDemo('pelajar@questudy.id')" class="p-2 text-center rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-bold border border-emerald-200 transition">
                         <i class="fa-solid fa-user-graduate block text-sm mb-0.5"></i> Pelajar

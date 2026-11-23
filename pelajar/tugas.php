@@ -3,7 +3,7 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/koneksi.php';
 cekRole('pelajar');
 
-$pageTitle = 'Tugas Kuliah — Questudy';
+$pageTitle = 'Tugas — Questudy';
 $userId = $_SESSION['id_user'];
 
 $idKelas = isset($_GET['id_kelas']) ? (int)$_GET['id_kelas'] : 0;
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $rw = tambahXP($conn, $userId, 'kumpul_tugas');
                     $msg = 'Tugas berhasil dikumpulkan tepat waktu! +50 XP ditambahkan.';
                     if (!empty($rw['badges_baru'])) {
-                        $msg .= ' 🏆 Anda membuka badge baru: ' . implode(', ', $rw['badges_baru']) . '!';
+                        $msg .= ' Anda membuka badge baru: ' . implode(', ', $rw['badges_baru']) . '!';
                     }
                     setFlash('success', $msg);
                 } else {
@@ -152,7 +152,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
-        <span class="text-slate-800 font-semibold">Tugas Kuliah</span>
+        <span class="text-slate-800 font-semibold">Tugas</span>
     </div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -263,7 +263,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-award text-emerald-600 text-lg"></i>
-                            <h3 class="text-sm font-bold text-emerald-900">Hasil Penilaian Pengajar</h3>
+                            <h3 class="text-sm font-bold text-emerald-900">Hasil Penilaian Tutor</h3>
                         </div>
                         <span class="text-lg font-extrabold text-emerald-700 bg-white px-3 py-1 rounded-xl border border-emerald-300">
                             <?= (int)$tugasDetail['nilai']; ?> / 100
@@ -271,7 +271,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     </div>
                     <?php if (!empty($tugasDetail['komentar_pengajar'])): ?>
                         <div class="text-xs text-emerald-800 bg-white/70 p-3 rounded-lg border border-emerald-200/60 mt-2">
-                            <strong>Catatan Dosen/Tutor:</strong> <?= e($tugasDetail['komentar_pengajar']); ?>
+                            <strong>Catatan Tutor:</strong> <?= e($tugasDetail['komentar_pengajar']); ?>
                         </div>
                     <?php endif; ?>
                 </div>

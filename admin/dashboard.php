@@ -24,7 +24,7 @@ $totalMateri = (int)$conn->query("SELECT COUNT(*) FROM materi")->fetchColumn();
 $totalTugas = (int)$conn->query("SELECT COUNT(*) FROM tugas")->fetchColumn();
 $totalKuis = (int)$conn->query("SELECT COUNT(*) FROM kuis")->fetchColumn();
 
-// 3. Pengajar yang Menunggu Verifikasi
+// 3. Tutor yang Menunggu Verifikasi
 $stmtPending = $conn->query("SELECT * FROM users WHERE role = 'pengajar' AND status_akun = 'pending' ORDER BY created_at DESC");
 $pendingTeachers = $stmtPending->fetchAll();
 
@@ -51,7 +51,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Ikhtisar Platform & Ekosistem Questudy</h1>
-            <p class="text-xs text-slate-500">Monitoring metrik pengguna, moderasi pengajar baru, dan analitik pembelajaran SDGs 4.</p>
+            <p class="text-xs text-slate-500">Monitoring metrik pengguna, moderasi pengajar baru, dan analitik pembelajaran.</p>
         </div>
         <div class="flex items-center gap-2">
             <a href="<?= base_url('admin/pengguna.php'); ?>" class="px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition shadow-sm">
@@ -79,16 +79,16 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <p class="text-xs text-slate-500 mt-1">Siswa aktif terdaftar di sistem.</p>
     </div>
 
-    <!-- Total Pengajar Aktif -->
+    <!-- Total Tutor Aktif -->
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
         <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Pengajar Terverifikasi</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Tutor Terverifikasi</span>
             <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#0066CC] flex items-center justify-center font-bold text-sm border border-blue-200">
                 <i class="fa-solid fa-chalkboard-user"></i>
             </span>
         </div>
         <div class="text-3xl font-extrabold text-slate-800"><?= (int)$uStats['pengajar_aktif']; ?></div>
-        <p class="text-xs text-slate-500 mt-1">Dosen & tutor terdaftar aktif.</p>
+        <p class="text-xs text-slate-500 mt-1">Tutor & tutor terdaftar aktif.</p>
     </div>
 
     <!-- Verifikasi Pending -->
@@ -160,7 +160,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <div class="flex items-center justify-between pb-2 border-b border-slate-100">
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-user-check text-amber-500"></i>
-                    <span>Verifikasi Pengajar (<?= count($pendingTeachers); ?>)</span>
+                    <span>Verifikasi Tutor (<?= count($pendingTeachers); ?>)</span>
                 </h3>
                 <a href="<?= base_url('admin/pengguna.php?filter=pending'); ?>" class="text-[11px] font-bold text-[#0066CC] hover:underline">
                     Semua &rarr;

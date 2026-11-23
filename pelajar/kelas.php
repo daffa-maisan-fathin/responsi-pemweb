@@ -25,18 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         } else {
             $idKelas = $targetKelas['id_kelas'];
 
-            // Cek apakah sudah bergabung
-            $stmtCek = $conn->prepare("SELECT id_anggota FROM anggota_kelas WHERE id_kelas = ? AND id_pelajar = ?");
-            $stmtCek->execute([$idKelas, $userId]);
-            if ($stmtCek->fetch()) {
-                $errorJoin = 'Anda sudah terdaftar sebagai anggota di kelas ' . $targetKelas['nama_kelas'] . '.';
-            } else {
-                $stmtJoin = $conn->prepare("INSERT INTO anggota_kelas (id_kelas, id_pelajar, bergabung_pada) VALUES (?, ?, NOW())");
-                $stmtJoin->execute([$idKelas, $userId]);
-
-                setFlash('success', 'Berhasil bergabung ke kelas: ' . $targetKelas['nama_kelas'] . '!');
+            $hasilGabung = gabungKelas($conn, $userId, $idKelas);
+            if ($hasilGabung['ok']) {
+                setFlash('success', $hasilGabung['pesan']);
                 header("Location: " . base_url('pelajar/kelas.php'));
                 exit();
+            } else {
+                $errorJoin = $hasilGabung['pesan'];
             }
         }
     }
@@ -84,8 +79,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Daftar Kelas Pembelajaran</h1>
-            <p class="text-xs text-slate-500">Akses modul perkuliahan, unduh berkas praktikum, dan ikuti forum tanya jawab.</p>
+            <p class="text-sm text-slate-500">Akses materi, tugas, dan kuis dari kelas yang kamu ikuti.</p>
         </div>
+        <a href="<?= base_url('pelajar/katalog.php'); ?>" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-bold transition">
+            <i class="fa-solid fa-compass"></i><span>Cari Kelas Baru</span>
+        </a>
     </div>
 </div>
 
@@ -98,7 +96,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <i class="fa-solid fa-key text-[#0066CC]"></i>
             <span>Gabung Kelas Baru</span>
         </h2>
-        <p class="text-xs text-slate-500 mb-3">Masukkan kode unik 6 karakter dari Pengajar/Dosen Anda.</p>
+        <p class="text-xs text-slate-500 mb-3">Masukkan kode unik 6 karakter dari Tutor/Tutor Anda.</p>
 
         <?php if (!empty($errorJoin)): ?>
             <div class="mb-3 p-2.5 rounded-lg bg-red-50 text-red-700 text-xs flex items-center gap-2 border border-red-200">
@@ -119,7 +117,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <!-- PENCARIAN KELAS -->
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm md:col-span-2 flex flex-col justify-center">
         <h2 class="text-sm font-bold text-slate-800 mb-1">Cari Kelas yang Diikuti</h2>
-        <p class="text-xs text-slate-500 mb-3">Filter berdasarkan judul mata kuliah, nama pengajar, atau kode kelas.</p>
+        <p class="text-xs text-slate-500 mb-3">Filter berdasarkan judul mata pelajaran, nama pengajar, atau kode kelas.</p>
 
         <form action="" method="GET" class="flex gap-2">
             <div class="relative w-full">
@@ -148,7 +146,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <i class="fa-solid fa-chalkboard"></i>
         </div>
         <h3 class="text-base font-bold text-slate-800 mb-1">Belum Ada Kelas yang Diikuti</h3>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">Anda belum bergabung ke kelas manapun. Masukkan kode kelas yang diberikan oleh tutor atau dosen Anda untuk memulai.</p>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">Anda belum bergabung ke kelas manapun. Masukkan kode kelas yang diberikan oleh tutor atau pengajar Anda untuk memulai.</p>
         <span class="text-xs font-bold text-[#0066CC] bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 inline-block">
             Coba kode demo: PW2026 atau BD2026
         </span>
@@ -176,7 +174,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             <?= e($kls['deskripsi'] ?: 'Tidak ada deskripsi tambahan untuk kelas ini.'); ?>
                         </p>
 
-                        <!-- Pengajar -->
+                        <!-- Tutor -->
                         <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
                             <img src="<?= base_url('uploads/profil/' . e($kls['foto_pengajar'])); ?>" class="w-7 h-7 rounded-full object-cover border border-slate-200" onerror="this.src='https://ui-avatars.com/api/?name=<?= urlencode($kls['nama_pengajar']); ?>&background=0066CC&color=fff';">
                             <div class="text-xs font-semibold text-slate-700 truncate">

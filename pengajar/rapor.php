@@ -25,7 +25,7 @@ if ($idKelas > 0) {
     $kelasInfo = $stmtKi->fetch();
 }
 
-// Rekap Rapor Seluruh Mahasiswa di Kelas Ini
+// Rekap Rapor Seluruh Pelajar di Kelas Ini
 $rekapSiswa = [];
 
 if ($kelasInfo) {
@@ -171,19 +171,19 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <h2 class="text-lg font-extrabold text-slate-800 mt-1"><?= e($kelasInfo['nama_kelas']); ?></h2>
             </div>
             <span class="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-lg border">
-                Total Mahasiswa: <strong class="text-[#0066CC]"><?= count($rekapSiswa); ?></strong>
+                Total Pelajar: <strong class="text-[#0066CC]"><?= count($rekapSiswa); ?></strong>
             </span>
         </div>
 
         <?php if (empty($rekapSiswa)): ?>
-            <p class="text-xs text-slate-400 p-8 text-center italic">Belum ada mahasiswa yang bergabung di kelas ini.</p>
+            <p class="text-xs text-slate-400 p-8 text-center italic">Belum ada pelajar yang bergabung di kelas ini.</p>
         <?php else: ?>
             <div class="overflow-x-auto p-6 pt-0">
                 <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
                     <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                         <tr>
                             <th class="p-3.5">No</th>
-                            <th class="p-3.5">Nama Mahasiswa</th>
+                            <th class="p-3.5">Nama Pelajar</th>
                             <th class="p-3.5 text-right">Rata-rata Tugas</th>
                             <th class="p-3.5 text-right">Rata-rata Kuis</th>
                             <th class="p-3.5 text-right">Nilai Akhir</th>

@@ -111,6 +111,16 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
         ::-webkit-scrollbar-thumb:hover {
             background: #94A3B8;
         }
+    
+        /* Penyederhanaan tampilan: teks lebih besar, tanpa huruf kapital semua, tanpa animasi */
+        body { font-size: 15px; line-height: 1.6; }
+        .text-\[10px\] { font-size: 12px !important; }
+        .text-\[11px\] { font-size: 12.5px !important; }
+        .text-xs { font-size: 13px !important; line-height: 1.5; }
+        .uppercase { text-transform: none !important; letter-spacing: normal !important; }
+        .tracking-wider, .tracking-wide { letter-spacing: normal !important; }
+        .animate-pulse, .animate-bounce { animation: none !important; }
+        .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important; }
     </style>
 </head>
 <body class="bg-[#F4F6F9] text-slate-800 min-h-screen flex flex-col antialiased">
@@ -130,9 +140,8 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                     <div>
                         <div class="flex items-center gap-1.5">
                             <span class="text-xl font-extrabold tracking-tight text-white group-hover:text-blue-200 transition">Questudy</span>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/30 text-blue-300 border border-blue-400/30">SDGs 4</span>
                         </div>
-                        <p class="text-[10px] text-slate-300 tracking-wide hidden sm:block">Gamified LMS & Early Warning</p>
+                        <p class="text-[10px] text-slate-300 tracking-wide hidden sm:block">Belajar lebih konsisten</p>
                     </div>
                 </a>
             </div>
@@ -166,7 +175,7 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                                 <div class="text-[10px] font-medium uppercase tracking-wider text-slate-300">
                                     <?php 
                                         if ($user_role === 'admin') echo '<span class="text-purple-300">Administrator</span>';
-                                        elseif ($user_role === 'pengajar') echo '<span class="text-sky-300">Pengajar / Tutor</span>';
+                                        elseif ($user_role === 'pengajar') echo '<span class="text-sky-300">Tutor / Tutor</span>';
                                         else echo '<span class="text-emerald-300">Pelajar Aktif</span>';
                                     ?>
                                 </div>
@@ -229,9 +238,14 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                             <span>Kelas & Materi</span>
                         </a>
 
+                        <a href="<?= base_url('pelajar/katalog.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'katalog.php') ? 'bg-blue-50 text-[#0066CC]' : 'text-slate-600 hover:bg-slate-50'; ?>">
+                            <i class="fa-solid fa-compass w-5 text-center text-base text-slate-400"></i>
+                            <span>Katalog Kelas</span>
+                        </a>
+
                         <a href="<?= base_url('pelajar/tugas.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'tugas.php') ? 'bg-[#EFF6FF] text-[#0066CC] border-l-4 border-[#0066CC]' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'; ?>">
                             <i class="fa-solid fa-list-check w-5 text-center text-base <?= ($currentPage === 'tugas.php') ? 'text-[#0066CC]' : 'text-slate-400'; ?>"></i>
-                            <span>Tugas Kuliah</span>
+                            <span>Tugas</span>
                         </a>
 
                         <a href="<?= base_url('pelajar/kuis.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'kuis.php') ? 'bg-[#EFF6FF] text-[#0066CC] border-l-4 border-[#0066CC]' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'; ?>">
@@ -261,13 +275,18 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                             <span>Mentoring Tutor</span>
                         </a>
 
+                        <a href="<?= base_url('laporan.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'laporan.php') ? 'bg-blue-50 text-[#0066CC]' : 'text-slate-600 hover:bg-slate-50'; ?>">
+                            <i class="fa-solid fa-flag w-5 text-center text-base text-slate-400"></i>
+                            <span>Laporkan Masalah</span>
+                        </a>
+
                     <?php elseif ($user_role === 'pengajar'): ?>
                         <!-- MENU PENGAJAR -->
                         <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Manajemen Akademik</div>
 
                         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'dashboard.php') ? 'bg-[#EFF6FF] text-[#0066CC] border-l-4 border-[#0066CC]' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'; ?>">
                             <i class="fa-solid fa-chart-line w-5 text-center text-base <?= ($currentPage === 'dashboard.php') ? 'text-[#0066CC]' : 'text-slate-400'; ?>"></i>
-                            <span>Dashboard Pengajar</span>
+                            <span>Dashboard Tutor</span>
                         </a>
 
                         <a href="<?= base_url('pengajar/pemantauan.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'pemantauan.php') ? 'bg-red-50 text-red-600 border-l-4 border-red-500' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'; ?>">
@@ -308,6 +327,11 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                             <span>Permintaan Mentoring</span>
                         </a>
 
+                        <a href="<?= base_url('laporan.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'laporan.php') ? 'bg-blue-50 text-[#0066CC]' : 'text-slate-600 hover:bg-slate-50'; ?>">
+                            <i class="fa-solid fa-flag w-5 text-center text-base text-slate-400"></i>
+                            <span>Laporkan Masalah</span>
+                        </a>
+
                     <?php elseif ($user_role === 'admin'): ?>
                         <!-- MENU ADMIN -->
                         <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Panel Administrasi</div>
@@ -326,6 +350,16 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                             <i class="fa-solid fa-sliders w-5 text-center text-base <?= ($currentPage === 'aturan_moderasi.php') ? 'text-[#0066CC]' : 'text-slate-400'; ?>"></i>
                             <span>Aturan & Moderasi</span>
                         </a>
+
+                        <a href="<?= base_url('admin/laporan.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'laporan.php') ? 'bg-blue-50 text-[#0066CC]' : 'text-slate-600 hover:bg-slate-50'; ?>">
+                            <i class="fa-solid fa-flag w-5 text-center text-base text-slate-400"></i>
+                            <span>Laporan Pengguna</span>
+                        </a>
+
+                        <a href="<?= base_url('admin/pengaturan.php'); ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition <?= ($currentPage === 'pengaturan.php') ? 'bg-blue-50 text-[#0066CC]' : 'text-slate-600 hover:bg-slate-50'; ?>">
+                            <i class="fa-solid fa-sliders w-5 text-center text-base text-slate-400"></i>
+                            <span>Kuota dan Batas</span>
+                        </a>
                     <?php endif; ?>
 
                     <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-4 mb-2">Pengaturan Akun</div>
@@ -342,14 +376,6 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                 </nav>
             </div>
 
-            <!-- SDGs 4 Footer Banner in Sidebar -->
-            <div class="p-4 border-t border-slate-200 bg-slate-50/70">
-                <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>SDGs 4: Quality Education</span>
-                </div>
-                <p class="text-[11px] text-slate-400 mt-0.5">Mendukung pemerataan akses & mutu belajar.</p>
-            </div>
         </aside>
         <?php endif; ?>
 

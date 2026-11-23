@@ -105,7 +105,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     </div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800">Semangat Belajar, <?= e($user['nama']); ?>! 👋</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800">Semangat Belajar, <?= e($user['nama']); ?>! </h1>
             <p class="text-xs text-slate-500">Pantau progres materi, capaian level XP, dan agenda tugas akademik Anda.</p>
         </div>
         <div class="flex items-center gap-2">
@@ -121,7 +121,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 </div>
 
 <!-- KARTU STATISTIK & GAMIFIKASI UTAMA -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
     
     <!-- Kartu Level & Bar XP (Amber #F59E0B) -->
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm relative overflow-hidden">
@@ -178,25 +178,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <p class="text-[10px] text-slate-400 mt-1.5">Dari <?= $totalKelas; ?> kelas yang terdaftar</p>
     </div>
 
-    <!-- Kartu Koleksi Badge -->
-    <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Koleksi Lencana</span>
-            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm border border-emerald-200">
-                <i class="fa-solid fa-award"></i>
-            </span>
-        </div>
-        <div class="text-2xl font-extrabold text-slate-800"><?= count($myBadges); ?> <span class="text-sm font-normal text-slate-400">/ 5 Badge</span></div>
-        <div class="flex items-center gap-1.5 mt-3">
-            <?php foreach (array_slice($myBadges, 0, 4) as $bg): ?>
-                <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-sm" title="<?= e($bg['nama_badge']); ?>">
-                    <?= $bg['ikon']; ?>
-                </span>
-            <?php endforeach; ?>
-            <a href="<?= base_url('pelajar/gamifikasi.php'); ?>" class="text-[11px] font-bold text-[#0066CC] hover:underline ml-1">Semua &rarr;</a>
-        </div>
-    </div>
-
 </div>
 
 <!-- GRID KONTEN UTAMA: TUGAS, KUIS & PENGUMUMAN -->
@@ -209,7 +190,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-base font-bold text-slate-800">Tugas Akademik Terdekat</h2>
+                    <h2 class="text-base font-bold text-slate-800">Tugas Terdekat</h2>
                     <p class="text-xs text-slate-500">Kumpulkan sebelum tenggat untuk mendapatkan bonus XP tepat waktu.</p>
                 </div>
                 <a href="<?= base_url('pelajar/tugas.php'); ?>" class="text-xs font-bold text-[#0066CC] hover:underline">
@@ -353,7 +334,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </div>
             <h3 class="text-sm font-bold">Butuh Bimbingan Privat?</h3>
             <p class="text-xs text-slate-300 leading-relaxed">
-                Jadwalkan sesi konsultasi daring bersama Pengajar untuk membahas materi yang sulit atau asistensi tugas.
+                Jadwalkan sesi konsultasi daring bersama Tutor untuk membahas materi yang sulit atau asistensi tugas.
             </p>
             <a href="<?= base_url('pelajar/booking_tutor.php'); ?>" class="inline-block w-full text-center py-2 px-3 rounded-lg bg-[#0066CC] hover:bg-blue-600 text-white font-bold text-xs transition">
                 Jadwalkan Sesi Tutor

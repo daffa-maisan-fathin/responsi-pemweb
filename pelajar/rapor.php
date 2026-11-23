@@ -155,7 +155,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0066CC]">
                                 <?= e($rp['kelas']['kode_kelas']); ?>
                             </span>
-                            <span class="text-xs text-slate-500">Pengajar: <strong><?= e($rp['kelas']['nama_pengajar']); ?></strong></span>
+                            <span class="text-xs text-slate-500">Tutor: <strong><?= e($rp['kelas']['nama_pengajar']); ?></strong></span>
                         </div>
                         <h2 class="text-lg font-extrabold text-slate-800"><?= e($rp['kelas']['nama_kelas']); ?></h2>
                     </div>

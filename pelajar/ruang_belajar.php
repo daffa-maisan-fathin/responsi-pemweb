@@ -551,12 +551,12 @@ require_once BASE_PATH . '/includes/layout_header.php';
 <?php if ($activeTab === 'planner'): ?>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- AGENDA OTOMATIS KAMPUS & TENGGAT (1 Kolom) -->
+        <!-- AGENDA OTOMATIS & TENGGAT (1 Kolom) -->
         <div class="space-y-4">
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm space-y-3">
                 <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
                     <i class="fa-regular fa-clock text-[#0066CC]"></i>
-                    <h3 class="text-sm font-bold text-slate-800">Tenggat Kuliah Otomatis</h3>
+                    <h3 class="text-sm font-bold text-slate-800">Tenggat Otomatis</h3>
                 </div>
                 <p class="text-xs text-slate-500">Jadwal tugas yang terhubung otomatis dari kelas Anda:</p>
 

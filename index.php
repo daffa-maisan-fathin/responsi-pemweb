@@ -10,7 +10,7 @@ $userRole = $_SESSION['role'] ?? null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questudy — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini (SDGs 4)</title>
+    <title>Questudy — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini </title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -40,9 +40,8 @@ $userRole = $_SESSION['role'] ?? null;
                 <div>
                     <div class="flex items-center gap-1.5">
                         <span class="text-xl font-black tracking-tight text-white">Questudy</span>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">SDGs 4</span>
                     </div>
-                    <p class="text-[10px] text-slate-300 tracking-wide hidden sm:block">Quality Education Platform</p>
+                    <p class="text-[10px] text-slate-300 tracking-wide hidden sm:block">Belajar lebih konsisten</p>
                 </div>
             </div>
 
@@ -73,10 +72,6 @@ $userRole = $_SESSION['role'] ?? null;
     <section class="relative bg-gradient-to-b from-[#0F294A] to-[#153660] text-white pt-16 pb-24 px-4 overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#0066CC_1px,transparent_1px)] [background-size:16px_16px]"></div>
         <div class="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
-                <i class="fa-solid fa-earth-americas"></i>
-                <span>Mendukung SDGs 4: Pendidikan Berkualitas, Inklusif & Merata</span>
-            </div>
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                 Belajar Lebih Menyenangkan dengan <br class="hidden sm:inline">
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-amber-300 to-emerald-300">Gamifikasi & Ruang Belajar Pribadi</span>
@@ -96,7 +91,7 @@ $userRole = $_SESSION['role'] ?? null;
         </div>
     </section>
 
-    <!-- 4 PILAR UTAMA SDGs 4 QUESTUDY -->
+    <!-- 4 FITUR UTAMA QUESTUDY -->
     <section id="fitur" class="py-16 px-4 max-w-7xl mx-auto -mt-12 relative z-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Pilar 1 -->
@@ -139,7 +134,7 @@ $userRole = $_SESSION['role'] ?? null;
                 </div>
                 <h3 class="text-base font-bold text-slate-800 mb-2">Mentoring & Tutor</h3>
                 <p class="text-xs text-slate-600 leading-relaxed">
-                    Kemudahan booking sesi pendampingan belajar bersama Pengajar/Tutor, tautan Google Meet terintegrasi, dan transparansi ulasan rating bintang.
+                    Kemudahan booking sesi pendampingan belajar bersama Tutor, tautan Google Meet terintegrasi, dan transparansi ulasan rating bintang.
                 </p>
             </div>
         </div>
@@ -150,7 +145,7 @@ $userRole = $_SESSION['role'] ?? null;
         <div class="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-sm">
             <div class="max-w-3xl mb-8">
                 <div class="text-xs font-bold uppercase tracking-wider text-[#0066CC] mb-1">Fitur Komprehensif</div>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Dirancang untuk 3 Peran: Pelajar, Pengajar & Admin</h2>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Dirancang untuk 3 Peran: Pelajar, Tutor & Admin</h2>
                 <p class="text-sm text-slate-600 mt-2">
                     Alur pembelajaran terintegrasi dari penyampaian materi interaktif, pengumpulan tugas, kuis online dengan pembatasan waktu, hingga rapor rekap nilai otomatis A–E.
                 </p>
@@ -171,11 +166,11 @@ $userRole = $_SESSION['role'] ?? null;
                     </ul>
                 </div>
 
-                <!-- Box Pengajar -->
+                <!-- Box Tutor -->
                 <div class="p-5 rounded-xl bg-slate-50 border border-slate-200">
                     <div class="flex items-center gap-2 font-bold text-slate-800 text-sm mb-3">
                         <span class="w-2.5 h-2.5 rounded-full bg-[#0066CC]"></span>
-                        <span>Untuk Pengajar</span>
+                        <span>Untuk Tutor</span>
                     </div>
                     <ul class="text-xs text-slate-600 space-y-2">
                         <li><i class="fa-solid fa-check text-[#0066CC] mr-1.5"></i> Manajemen kelas & pengumuman</li>
@@ -210,7 +205,7 @@ $userRole = $_SESSION['role'] ?? null;
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <span class="text-white font-bold text-sm">Questudy</span> — Platform Pembelajaran SDGs 4
+                    <span class="text-white font-bold text-sm">Questudy</span> — Platform Pembelajaran
                 </div>
             </div>
             <p>&copy; <?= date('Y'); ?> Questudy. Dikembangkan dengan PHP 8 Native, MySQL & Tailwind CSS.</p>

@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $msg = "Kuis selesai! Skor Anda: $skor/100 (Percobaan ke-$percobaanKe).";
         if ($skor === 100) {
             $rw = tambahXP($conn, $userId, 'kuis_sempurna');
-            $msg .= " 🌟 Sempurna! Anda mendapatkan bonus +40 XP!";
+            $msg .= " Sempurna! Anda mendapatkan bonus +40 XP!";
             if (!empty($rw['badges_baru'])) {
-                $msg .= " 🏆 Badge baru: " . implode(', ', $rw['badges_baru']);
+                $msg .= " Badge baru: " . implode(', ', $rw['badges_baru']);
             }
         }
 

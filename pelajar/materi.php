@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $reward = tambahXP($conn, $userId, 'selesai_materi');
         $msg = 'Materi berhasil diselesaikan! +20 XP ditambahkan ke profil Anda.';
         if (!empty($reward['badges_baru'])) {
-            $msg .= ' 🏆 Selamat, Anda membuka badge baru: ' . implode(', ', $reward['badges_baru']) . '!';
+            $msg .= ' Selamat, Anda membuka badge baru: ' . implode(', ', $reward['badges_baru']) . '!';
         }
         setFlash('success', $msg);
     }
@@ -274,7 +274,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         <div class="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
                             <i class="fa-solid fa-file-pdf text-4xl text-red-500"></i>
                             <h4 class="text-sm font-bold text-slate-800"><?= e($materiAktif['file_materi']); ?></h4>
-                            <p class="text-xs text-slate-500">Dokumen materi kuliah siap untuk diunduh dan dipelajari secara luring.</p>
+                            <p class="text-xs text-slate-500">Dokumen materi siap untuk diunduh dan dipelajari secara luring.</p>
                             <a href="<?= base_url('uploads/materi/' . e($materiAktif['file_materi'])); ?>" download class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition shadow-sm">
                                 <i class="fa-solid fa-download"></i>
                                 <span>Unduh Berkas Materi</span>
@@ -297,7 +297,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </div>
             </div>
 
-            <!-- TAB / SECTION 1: CATATAN PRIBADI MAHASISWA -->
+            <!-- TAB / SECTION 1: CATATAN PRIBADI PELAJAR -->
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">

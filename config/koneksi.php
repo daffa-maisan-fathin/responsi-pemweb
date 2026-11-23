@@ -2,7 +2,6 @@
 /**
  * QUESTUDY — Database Connection & Global Helper Functions
  * Platform Pembelajaran Kolaboratif, Gamifikasi & Early Warning
- * Tema SDGs 4: Quality Education
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -179,4 +178,63 @@ function tambahXP($conn, $id_pelajar, $aksi) {
         error_log("Error tambahXP: " . $e->getMessage());
         return false;
     }
+}
+
+
+/**
+ * Daftar kategori kelas dan tingkat kesulitan
+ */
+function daftarKategori() {
+    return ['Teknologi', 'Desain', 'Bahasa', 'Bisnis & Wirausaha', 'Keterampilan Praktis', 'Lainnya'];
+}
+
+/**
+ * Ambil nilai pengaturan sistem (kuota dan batas) dari tabel pengaturan_sistem
+ */
+function getPengaturan($conn, $kunci, $default = 0) {
+    try {
+        $stmt = $conn->prepare("SELECT nilai FROM pengaturan_sistem WHERE kunci = ? LIMIT 1");
+        $stmt->execute([$kunci]);
+        $row = $stmt->fetch();
+        return $row ? (int)$row['nilai'] : $default;
+    } catch (Exception $e) {
+        return $default;
+    }
+}
+
+/**
+ * Gabung kelas dengan aturan: kelas ada, belum terdaftar, kuota belum penuh,
+ * dan batas jumlah kelas yang diikuti pelajar belum tercapai.
+ */
+function gabungKelas($conn, $idPelajar, $idKelas) {
+    $stmtK = $conn->prepare("SELECT nama_kelas, kuota FROM kelas WHERE id_kelas = ?");
+    $stmtK->execute([$idKelas]);
+    $kelas = $stmtK->fetch();
+    if (!$kelas) {
+        return ['ok' => false, 'pesan' => 'Kelas tidak ditemukan!'];
+    }
+
+    $stmtCek = $conn->prepare("SELECT id_anggota FROM anggota_kelas WHERE id_kelas = ? AND id_pelajar = ?");
+    $stmtCek->execute([$idKelas, $idPelajar]);
+    if ($stmtCek->fetch()) {
+        return ['ok' => false, 'pesan' => 'Anda sudah terdaftar di kelas ' . $kelas['nama_kelas'] . '.'];
+    }
+
+    $stmtIsi = $conn->prepare("SELECT COUNT(*) FROM anggota_kelas WHERE id_kelas = ?");
+    $stmtIsi->execute([$idKelas]);
+    $terisi = (int)$stmtIsi->fetchColumn();
+    if ($terisi >= (int)$kelas['kuota']) {
+        return ['ok' => false, 'pesan' => 'Kelas ' . $kelas['nama_kelas'] . ' sudah penuh (' . $terisi . '/' . (int)$kelas['kuota'] . ').'];
+    }
+
+    $maks = getPengaturan($conn, 'maks_kelas_pelajar', 5);
+    $stmtJml = $conn->prepare("SELECT COUNT(*) FROM anggota_kelas WHERE id_pelajar = ?");
+    $stmtJml->execute([$idPelajar]);
+    if ((int)$stmtJml->fetchColumn() >= $maks) {
+        return ['ok' => false, 'pesan' => 'Batas kelas yang diikuti tercapai (maksimal ' . $maks . ' kelas).'];
+    }
+
+    $stmtJoin = $conn->prepare("INSERT INTO anggota_kelas (id_kelas, id_pelajar, bergabung_pada) VALUES (?, ?, NOW())");
+    $stmtJoin->execute([$idKelas, $idPelajar]);
+    return ['ok' => true, 'pesan' => 'Berhasil bergabung ke kelas: ' . $kelas['nama_kelas'] . '!'];
 }

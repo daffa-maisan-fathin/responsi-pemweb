@@ -11,9 +11,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $idB = (int)$_POST['id_booking'];
     $link = trim($_POST['link_meeting'] ?? '');
 
-    $stmtUp = $conn->prepare("UPDATE booking_tutor SET status = 'disetujui', link_meeting = ? WHERE id_booking = ? AND id_tutor = ?");
-    $stmtUp->execute([$link ?: 'https://meet.google.com/qsy-mentoring', $idB, $userId]);
-    setFlash('success', 'Sesi mentoring disetujui! Tautan meeting telah dibagikan kepada mahasiswa.');
+    $stmtInfo = $conn->prepare("SELECT tanggal_sesi, jam_sesi FROM booking_tutor WHERE id_booking = ? AND id_tutor = ?");
+    $stmtInfo->execute([$idB, $userId]);
+    $info = $stmtInfo->fetch();
+
+    $bentrok = false;
+    if ($info) {
+        $stmtBt = $conn->prepare("SELECT COUNT(*) FROM booking_tutor WHERE id_tutor = ? AND tanggal_sesi = ? AND jam_sesi = ? AND status = 'disetujui' AND id_booking <> ?");
+        $stmtBt->execute([$userId, $info['tanggal_sesi'], $info['jam_sesi'], $idB]);
+        $bentrok = (int)$stmtBt->fetchColumn() > 0;
+    }
+
+    if (!$info) {
+        setFlash('error', 'Data booking tidak ditemukan.');
+    } elseif ($bentrok) {
+        setFlash('error', 'Jadwal bentrok dengan sesi lain yang sudah disetujui pada waktu yang sama.');
+    } else {
+        $stmtUp = $conn->prepare("UPDATE booking_tutor SET status = 'disetujui', link_meeting = ? WHERE id_booking = ? AND id_tutor = ? AND status IN ('pending','disetujui')");
+        $stmtUp->execute([$link ?: 'https://meet.google.com/qsy-mentoring', $idB, $userId]);
+        setFlash('success', 'Sesi mentoring disetujui! Tautan meeting telah dibagikan kepada pelajar.');
+    }
     header("Location: " . base_url('pengajar/booking.php'));
     exit();
 }
@@ -21,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle Tandai Selesai
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'selesaikan_booking') {
     $idB = (int)$_POST['id_booking'];
-    $stmtSelesai = $conn->prepare("UPDATE booking_tutor SET status = 'selesai' WHERE id_booking = ? AND id_tutor = ?");
+    $stmtSelesai = $conn->prepare("UPDATE booking_tutor SET status = 'selesai' WHERE id_booking = ? AND id_tutor = ? AND status = 'disetujui'");
     $stmtSelesai->execute([$idB, $userId]);
     setFlash('success', 'Sesi mentoring telah ditandai selesai.');
     header("Location: " . base_url('pengajar/booking.php'));
@@ -31,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle Tolak / Batalkan
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'tolak_booking') {
     $idB = (int)$_POST['id_booking'];
-    $stmtBatal = $conn->prepare("UPDATE booking_tutor SET status = 'dibatalkan' WHERE id_booking = ? AND id_tutor = ?");
+    $stmtBatal = $conn->prepare("UPDATE booking_tutor SET status = 'dibatalkan', alasan_batal = 'Dibatalkan oleh tutor' WHERE id_booking = ? AND id_tutor = ? AND status IN ('pending','disetujui')");
     $stmtBatal->execute([$idB, $userId]);
     setFlash('info', 'Permintaan booking telah dibatalkan.');
     header("Location: " . base_url('pengajar/booking.php'));
@@ -63,7 +80,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Sesi Mentoring Privat</h1>
-            <p class="text-xs text-slate-500">Konfirmasi jadwal konsultasi daring dari mahasiswa, atur tautan Google Meet, dan lihat ulasan.</p>
+            <p class="text-xs text-slate-500">Konfirmasi jadwal konsultasi daring dari pelajar, atur tautan Google Meet, dan lihat ulasan.</p>
         </div>
     </div>
 </div>
@@ -77,7 +94,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <div class="text-center py-12 text-slate-400">
             <i class="fa-solid fa-handshake-angle text-4xl mb-3 block"></i>
             <h3 class="text-sm font-bold text-slate-700">Belum Ada Permintaan Mentoring</h3>
-            <p class="text-xs text-slate-400 mt-1">Permintaan konsultasi privat dari mahasiswa akan ditampilkan di sini.</p>
+            <p class="text-xs text-slate-400 mt-1">Permintaan konsultasi privat dari pelajar akan ditampilkan di sini.</p>
         </div>
     <?php else: ?>
         <div class="space-y-4">
@@ -113,7 +130,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         <?php endif; ?>
                     </div>
 
-                    <!-- Ulasan Mahasiswa jika sesi sudah selesai -->
+                    <!-- Ulasan Pelajar jika sesi sudah selesai -->
                     <?php if ($b['status'] === 'selesai' && $b['rating'] !== null): ?>
                         <div class="bg-amber-50/60 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 space-y-1">
                             <div class="flex items-center gap-2">
@@ -128,7 +145,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         </div>
                     <?php endif; ?>
 
-                    <!-- Form Aksi Pengajar Sesuai Status -->
+                    <!-- Form Aksi Tutor Sesuai Status -->
                     <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <div>
                             <?php if (!empty($b['link_meeting'])): ?>

@@ -3,7 +3,7 @@ define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/config/koneksi.php';
 cekRole('pengajar');
 
-$pageTitle = 'Penilaian Tugas Mahasiswa — Questudy';
+$pageTitle = 'Penilaian Tugas Pelajar — Questudy';
 $userId = $_SESSION['id_user'];
 
 $idKelas = isset($_GET['id_kelas']) ? (int)$_GET['id_kelas'] : 0;
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit();
 }
 
-// Handle Simpan Nilai & Komentar Pengajar (Screen 10)
+// Handle Simpan Nilai & Komentar Tutor (Screen 10)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'beri_nilai') {
     $idKumpul = (int)$_POST['id_kumpul'];
     $idTugas = (int)$_POST['id_tugas'];
@@ -109,7 +109,7 @@ if (!empty($tugasList)) {
         $idTugasAktif = $tugasAktif['id_tugas'];
     }
 
-    // Ambil seluruh mahasiswa di kelas beserta pengumpulan tugasnya (Screen 10)
+    // Ambil seluruh pelajar di kelas beserta pengumpulan tugasnya (Screen 10)
     $stmtKumpul = $conn->prepare("
         SELECT u.id_user, u.nama, u.email, u.foto_profil,
                pt.id_kumpul, pt.jawaban_teks, pt.file_jawaban, pt.waktu_kumpul, pt.status AS status_kumpul, pt.nilai, pt.komentar_pengajar
@@ -135,7 +135,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     </div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800">Penilaian & Evaluasi Tugas Kuliah</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800">Penilaian & Evaluasi Tugas</h1>
             <p class="text-xs text-slate-500">Pantau ketepatan waktu pengumpulan, periksa berkas jawaban, dan berikan feedback nilai.</p>
         </div>
         <div>
@@ -215,7 +215,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                     <span class="font-bold text-[#0066CC]"><?= (int)$t['total_dikumpul']; ?>/<?= (int)$t['total_mahasiswa']; ?> Kumpul</span>
                                 </div>
                             </a>
-                            <form action="" method="POST" onsubmit="return confirm('Hapus tugas ini beserta seluruh pengumpulan mahasiswa?');">
+                            <form action="" method="POST" onsubmit="return confirm('Hapus tugas ini beserta seluruh pengumpulan pelajar?');">
                                 <input type="hidden" name="action" value="hapus_tugas">
                                 <input type="hidden" name="id_tugas" value="<?= $t['id_tugas']; ?>">
                                 <button type="submit" class="text-slate-400 hover:text-red-500 p-1">
@@ -237,7 +237,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <div class="bg-white rounded-xl border border-[#E2E8F0] p-12 text-center shadow-sm">
                 <i class="fa-solid fa-clipboard-check text-4xl text-slate-300 mb-3 block"></i>
                 <h3 class="text-base font-bold text-slate-700">Pilih Tugas untuk Dinilai</h3>
-                <p class="text-xs text-slate-400 mt-1">Pilih salah satu tugas di samping untuk memeriksa pengumpulan mahasiswa dan menginput nilai.</p>
+                <p class="text-xs text-slate-400 mt-1">Pilih salah satu tugas di samping untuk memeriksa pengumpulan pelajar dan menginput nilai.</p>
             </div>
         <?php else: ?>
 
@@ -257,15 +257,15 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <p class="text-xs text-slate-600 leading-relaxed bg-slate-50/70 p-3 rounded-lg border border-slate-100 whitespace-pre-line"><?= e($tugasAktif['petunjuk']); ?></p>
             </div>
 
-            <!-- TABEL PENILAIAN MAHASISWA (Screen 10) -->
+            <!-- TABEL PENILAIAN PELAJAR (Screen 10) -->
             <div class="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex items-center justify-between">
-                    <span>Daftar Pengumpulan Tugas Mahasiswa</span>
+                    <span>Daftar Pengumpulan Tugas Pelajar</span>
                     <span class="text-[11px] text-slate-500 font-normal">Input nilai skala 0–100 dan komentar pengajar</span>
                 </div>
 
                 <?php if (empty($pengumpulanList)): ?>
-                    <p class="text-xs text-slate-400 p-8 text-center italic">Tidak ada mahasiswa terdaftar di kelas ini.</p>
+                    <p class="text-xs text-slate-400 p-8 text-center italic">Tidak ada pelajar terdaftar di kelas ini.</p>
                 <?php else: ?>
                     <div class="divide-y divide-slate-100">
                         <?php foreach ($pengumpulanList as $row): ?>
@@ -275,7 +275,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             ?>
                             <div class="p-5 hover:bg-slate-50/50 transition space-y-3">
                                 
-                                <!-- Baris Atas: Profil Mahasiswa & Status Pengumpulan -->
+                                <!-- Baris Atas: Profil Pelajar & Status Pengumpulan -->
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <div class="flex items-center gap-3">
                                         <img src="<?= base_url('uploads/profil/' . e($row['foto_profil'])); ?>" class="w-9 h-9 rounded-full object-cover border" onerror="this.src='https://ui-avatars.com/api/?name=<?= urlencode($row['nama']); ?>&background=0066CC&color=fff';">
@@ -321,7 +321,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                         <?php endif; ?>
                                     </div>
 
-                                    <!-- Form Input Nilai & Komentar Pengajar -->
+                                    <!-- Form Input Nilai & Komentar Tutor -->
                                     <form action="" method="POST" class="flex flex-col sm:flex-row items-center gap-3 pt-1">
                                         <input type="hidden" name="action" value="beri_nilai">
                                         <input type="hidden" name="id_kumpul" value="<?= $row['id_kumpul']; ?>">
@@ -333,7 +333,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                         </div>
 
                                         <div class="w-full sm:flex-1">
-                                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Komentar / Feedback Pengajar</label>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Komentar / Feedback Tutor</label>
                                             <input type="text" name="komentar_pengajar" value="<?= e($row['komentar_pengajar'] ?? ''); ?>" placeholder="Catatan evaluasi atau saran perbaikan..." class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
                                         </div>
 

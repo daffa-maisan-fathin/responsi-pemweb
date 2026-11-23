@@ -8,10 +8,6 @@
             <div>
                 &copy; <?= date('Y'); ?> <strong class="text-slate-700">Questudy</strong> — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini.
             </div>
-            <div class="flex items-center gap-2">
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Komitmen Mendukung Target SDGs 4: Pendidikan Berkualitas</span>
-            </div>
         </div>
     </footer>
 

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             VALUES (?, ?, ?, ?, NOW())
         ");
         $stmtTL->execute([$targetKelas, $userId, $targetPelajar, $catatanTL]);
-        setFlash('success', 'Catatan tindak lanjut untuk mahasiswa berhasil disimpan!');
+        setFlash('success', 'Catatan tindak lanjut untuk pelajar berhasil disimpan!');
     }
     header("Location: " . base_url('pengajar/pemantauan.php' . ($filterKelas ? '?id_kelas=' . $filterKelas : '')));
     exit();
@@ -35,7 +35,7 @@ $stmtMyClasses = $conn->prepare("SELECT id_kelas, nama_kelas, kode_kelas FROM ke
 $stmtMyClasses->execute([$userId]);
 $myClasses = $stmtMyClasses->fetchAll();
 
-// Query pemindaian mahasiswa berisiko (Early Warning Scan)
+// Query pemindaian pelajar berisiko (Early Warning Scan)
 $sqlScan = "
     SELECT u.id_user, u.nama, u.email, u.foto_profil, u.last_login, u.created_at,
            k.id_kelas, k.nama_kelas, k.kode_kelas,
@@ -132,10 +132,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-                <span>Pemantauan Akademik (Early Warning System)</span>
-                <span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">SDGs 4 Inclusive</span>
+                <span>Pemantauan Pelajar (Peringatan Dini)</span>
             </h1>
-            <p class="text-xs text-slate-500">Sistem pendeteksi otomatis siswa berisiko tertinggal demi menjamin hak pendidikan merata dan berkualitas.</p>
+            <p class="text-xs text-slate-500">Sistem pendeteksi otomatis pelajar yang berisiko tertinggal, lengkap dengan pencatatan tindak lanjut.</p>
         </div>
         <!-- Filter Kelas Dropdown -->
         <form action="" method="GET" class="flex items-center gap-2">
@@ -156,7 +155,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ambang Batas Peringatan Dini (Ditetapkan Admin):</h3>
-            <p class="text-xs text-slate-500">Mahasiswa otomatis ditandai "Perlu Perhatian" bila memenuhi salah satu kriteria berikut:</p>
+            <p class="text-xs text-slate-500">Pelajar otomatis ditandai "Perlu Perhatian" bila memenuhi salah satu kriteria berikut:</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
             <span class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-200">
@@ -177,10 +176,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="p-6 bg-red-50/50 border-b border-red-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
-            <h2 class="text-base font-bold text-red-950">Daftar Mahasiswa Perlu Perhatian</h2>
+            <h2 class="text-base font-bold text-red-950">Daftar Pelajar Perlu Perhatian</h2>
         </div>
         <span class="px-3 py-1 rounded-full text-xs font-black bg-red-100 text-red-700 border border-red-200">
-            <?= count($siswaPerluPerhatian); ?> Mahasiswa Terdeteksi
+            <?= count($siswaPerluPerhatian); ?> Pelajar Terdeteksi
         </span>
     </div>
 
@@ -188,7 +187,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <div class="p-12 text-center text-slate-400">
             <i class="fa-solid fa-shield-heart text-4xl text-emerald-500 mb-3 block"></i>
             <h3 class="text-base font-bold text-slate-700">Kondisi Belajar Optimal</h3>
-            <p class="text-xs text-slate-400 mt-1">Tidak ada mahasiswa yang melampaui ambang batas peringatan dini di kelas ini.</p>
+            <p class="text-xs text-slate-400 mt-1">Tidak ada pelajar yang melampaui ambang batas peringatan dini di kelas ini.</p>
         </div>
     <?php else: ?>
         <div class="p-6 space-y-4">
@@ -221,7 +220,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         </div>
                     </div>
 
-                    <!-- Riwayat & Form Tindak Lanjut Pengajar -->
+                    <!-- Riwayat & Form Tindak Lanjut Tutor -->
                     <div class="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         
                         <!-- Catatan Sebelumnya -->

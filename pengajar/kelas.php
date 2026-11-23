@@ -13,8 +13,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $namaKelas = trim($_POST['nama_kelas'] ?? '');
     $deskripsi = trim($_POST['deskripsi'] ?? '');
 
+    $kategori = trim($_POST['kategori'] ?? 'Lainnya');
+    $tingkat = $_POST['tingkat'] ?? 'pemula';
+    $kuota = (int)($_POST['kuota'] ?? getPengaturan($conn, 'kuota_kelas_default', 20));
+    $maksKelas = getPengaturan($conn, 'maks_kelas_tutor', 3);
+    $stmtJml = $conn->prepare("SELECT COUNT(*) FROM kelas WHERE id_pengajar = ?");
+    $stmtJml->execute([$userId]);
+    $jumlahKelas = (int)$stmtJml->fetchColumn();
+
     if (empty($namaKelas)) {
         setFlash('error', 'Nama kelas tidak boleh kosong!');
+    } elseif (!in_array($kategori, daftarKategori()) || !in_array($tingkat, ['pemula', 'menengah', 'lanjut'])) {
+        setFlash('error', 'Kategori atau tingkat kelas tidak valid!');
+    } elseif ($kuota < 1 || $kuota > 100) {
+        setFlash('error', 'Kuota peserta harus antara 1 dan 100!');
+    } elseif ($jumlahKelas >= $maksKelas) {
+        setFlash('error', 'Batas kelas per tutor tercapai (maksimal ' . $maksKelas . ' kelas).');
     } else {
         // Generate kode unik 6 karakter
         $kodeUnik = '';
@@ -25,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmtCek->execute([$kodeUnik]);
         } while ($stmtCek->fetch());
 
-        $stmtIns = $conn->prepare("INSERT INTO kelas (id_pengajar, kode_kelas, nama_kelas, deskripsi, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmtIns->execute([$userId, $kodeUnik, $namaKelas, $deskripsi ?: null]);
+        $stmtIns = $conn->prepare("INSERT INTO kelas (id_pengajar, kode_kelas, nama_kelas, deskripsi, kategori, tingkat, kuota, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmtIns->execute([$userId, $kodeUnik, $namaKelas, $deskripsi ?: null, $kategori, $tingkat, $kuota]);
 
         setFlash('success', "Kelas berhasil dibuat dengan kode unik: $kodeUnik!");
         header("Location: " . base_url('pengajar/kelas.php'));
@@ -59,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit();
 }
 
-// Handle Keluarkan Anggota Mahasiswa
+// Handle Keluarkan Anggota Pelajar
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'keluarkan_anggota') {
     $idAnggota = (int)$_POST['id_anggota'];
     $stmtOut = $conn->prepare("
@@ -68,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         WHERE ak.id_anggota = ? AND k.id_pengajar = ?
     ");
     $stmtOut->execute([$idAnggota, $userId]);
-    setFlash('info', 'Mahasiswa berhasil dikeluarkan dari kelas.');
+    setFlash('info', 'Pelajar berhasil dikeluarkan dari kelas.');
     header("Location: " . base_url('pengajar/kelas.php?id=' . $idKelasAktif));
     exit();
 }
@@ -163,7 +177,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Kelas & Pengumuman</h1>
-            <p class="text-xs text-slate-500">Buat kelas baru, kelola anggota mahasiswa, dan bagikan informasi akademik.</p>
+            <p class="text-xs text-slate-500">Buat kelas baru, kelola anggota pelajar, dan bagikan informasi akademik.</p>
         </div>
         <div>
             <!-- Tombol Trigger Modal Tambah Kelas -->
@@ -196,7 +210,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                     <?= e($k['kode_kelas']); ?>
                                 </span>
                                 <span class="text-[11px] text-slate-400">
-                                    <?= (int)$k['total_siswa']; ?> Mahasiswa
+                                    <?= (int)$k['total_siswa']; ?> / <?= (int)$k['kuota']; ?> Pelajar
                                 </span>
                             </div>
                             <h4 class="text-xs font-bold text-slate-800 line-clamp-1"><?= e($k['nama_kelas']); ?></h4>
@@ -225,7 +239,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             <span class="text-xs font-mono font-black px-2.5 py-1 rounded-lg bg-blue-100 text-[#0066CC] border border-blue-200">
                                 Kode: <?= e($kelasAktif['kode_kelas']); ?>
                             </span>
-                            <span class="text-xs text-slate-400">Bagikan kode ini kepada mahasiswa untuk bergabung</span>
+                            <span class="text-xs text-slate-400">Bagikan kode ini kepada pelajar untuk bergabung</span>
                         </div>
                         <h2 class="text-xl font-extrabold text-slate-800 mt-2"><?= e($kelasAktif['nama_kelas']); ?></h2>
                         <p class="text-xs text-slate-600 mt-1 leading-relaxed"><?= e($kelasAktif['deskripsi'] ?: 'Tidak ada deskripsi.'); ?></p>
@@ -268,18 +282,18 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-users text-[#0066CC]"></i>
-                        <h3 class="text-sm font-bold text-slate-800">Daftar Anggota Mahasiswa (<?= count($anggotaList); ?>)</h3>
+                        <h3 class="text-sm font-bold text-slate-800">Daftar Anggota Pelajar (<?= count($anggotaList); ?>)</h3>
                     </div>
                 </div>
 
                 <?php if (empty($anggotaList)): ?>
-                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada mahasiswa yang bergabung ke kelas ini.</p>
+                    <p class="text-xs text-slate-400 py-4 text-center italic">Belum ada pelajar yang bergabung ke kelas ini.</p>
                 <?php else: ?>
                     <div class="overflow-x-auto rounded-xl border border-slate-200">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                                 <tr>
-                                    <th class="p-3">Nama Mahasiswa</th>
+                                    <th class="p-3">Nama Pelajar</th>
                                     <th class="p-3">Reputasi Belajar</th>
                                     <th class="p-3">Bergabung</th>
                                     <th class="p-3 text-right">Aksi</th>
@@ -305,7 +319,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                             <?= date('d M Y', strtotime($mhs['bergabung_pada'])); ?>
                                         </td>
                                         <td class="p-3 text-right">
-                                            <form action="" method="POST" onsubmit="return confirm('Keluarkan mahasiswa ini dari kelas?');">
+                                            <form action="" method="POST" onsubmit="return confirm('Keluarkan pelajar ini dari kelas?');">
                                                 <input type="hidden" name="action" value="keluarkan_anggota">
                                                 <input type="hidden" name="id_anggota" value="<?= $mhs['id_anggota']; ?>">
                                                 <button type="submit" class="text-red-500 hover:text-red-700 font-bold p-1">
@@ -339,7 +353,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         <input type="text" name="judul" required placeholder="Judul Pengumuman (misal: Perubahan Jadwal Praktikum)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
                     </div>
                     <div>
-                        <textarea name="isi" rows="2" required placeholder="Tulis rincian pengumuman kepada mahasiswa..." class="w-full p-2.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition"></textarea>
+                        <textarea name="isi" rows="2" required placeholder="Tulis rincian pengumuman kepada pelajar..." class="w-full p-2.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition"></textarea>
                     </div>
                     <div class="text-right">
                         <button type="submit" class="px-4 py-1.5 rounded-lg bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition">
@@ -394,13 +408,36 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <input type="hidden" name="action" value="tambah_kelas">
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Mata Kuliah / Kelas</label>
-                <input type="text" name="nama_kelas" required placeholder="Contoh: Pemrograman Berorientasi Objek" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Kelas atau Skill</label>
+                <input type="text" name="nama_kelas" required placeholder="Contoh: Desain Grafis untuk Pemula" class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori</label>
+                    <select name="kategori" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        <?php foreach (daftarKategori() as $kat): ?>
+                            <option value="<?= e($kat); ?>"><?= e($kat); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tingkat</label>
+                    <select name="tingkat" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        <option value="pemula">Pemula</option>
+                        <option value="menengah">Menengah</option>
+                        <option value="lanjut">Lanjut</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Kuota Peserta</label>
+                    <input type="number" name="kuota" min="1" max="100" value="<?= getPengaturan($conn, 'kuota_kelas_default', 20); ?>" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                </div>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Silabus Singkat</label>
-                <textarea name="deskripsi" rows="3" placeholder="Rangkuman kompetensi dan capaian pembelajaran..." class="w-full p-3 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition"></textarea>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Singkat Kelas</label>
+                <textarea name="deskripsi" rows="3" placeholder="Apa yang akan dipelajari dan hasil akhirnya..." class="w-full p-3 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC] transition"></textarea>
             </div>
 
             <div class="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-[#0066CC]">
