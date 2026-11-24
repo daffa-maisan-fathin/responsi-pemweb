@@ -242,9 +242,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                                 <div>
                                     <?php if ($rb['status'] === 'disetujui' && !empty($rb['link_meeting'])): ?>
-                                        <a href="<?= e($rb['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+                                        <a href="<?= e($rb['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm animate-pulse">
+                                            <span class="w-2 h-2 rounded-full bg-white"></span>
                                             <i class="fa-solid fa-video"></i>
-                                            <span>Buka Google Meet</span>
+                                            <span>Masuk Sesi Mentoring</span>
                                         </a>
                                     <?php elseif ($rb['status'] === 'disetujui'): ?>
                                         <span class="text-[11px] text-slate-400 italic">Tautan meeting akan segera diperbarui tutor</span>

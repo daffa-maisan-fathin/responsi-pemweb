@@ -205,8 +205,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     <a href="<?= base_url('pelajar/materi.php?id_kelas=' . $kls['id_kelas']); ?>" class="flex-1 text-center py-2 px-3 rounded-lg bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-xs transition shadow-sm">
                         Buka Materi
                     </a>
-                    <a href="<?= base_url('pelajar/tugas.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-3 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition" title="Lihat Tugas Kelas">
+                    <a href="<?= base_url('pelajar/tugas.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition" title="Lihat Tugas Kelas">
                         <i class="fa-solid fa-list-check"></i>
+                    </a>
+                    <a href="<?= base_url('pelajar/sertifikat.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-2.5 rounded-lg bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-700 font-bold text-xs transition shadow-sm" title="Klaim & Cetak Sertifikat Kelulusan">
+                        <i class="fa-solid fa-award"></i>
                     </a>
                 </div>
             </div>

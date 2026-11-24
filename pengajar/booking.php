@@ -149,9 +149,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <div>
                             <?php if (!empty($b['link_meeting'])): ?>
-                                <a href="<?= e($b['link_meeting']); ?>" target="_blank" class="text-xs font-bold text-[#0066CC] hover:underline flex items-center gap-1.5">
+                                <a href="<?= e($b['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
                                     <i class="fa-solid fa-video"></i>
-                                    <span>Tautan Google Meet: <?= e($b['link_meeting']); ?></span>
+                                    <span>Buka Ruang Meet</span>
                                 </a>
                             <?php endif; ?>
                         </div>

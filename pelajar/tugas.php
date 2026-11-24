@@ -90,11 +90,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 // Reward XP jika tepat waktu
                 if ($statusKumpul === 'tepat_waktu') {
+                    $oldLevel = $_SESSION['level'] ?? 1;
                     $rw = tambahXP($conn, $userId, 'kumpul_tugas');
                     $msg = 'Tugas berhasil dikumpulkan tepat waktu! +50 XP ditambahkan.';
                     if (!empty($rw['badges_baru'])) {
                         $msg .= ' Anda membuka badge baru: ' . implode(', ', $rw['badges_baru']) . '!';
                     }
+                    $_SESSION['celebration'] = [
+                        'title' => 'Tugas Selesai Dikumpulkan!',
+                        'message' => 'Hebat! Kamu mengumpulkan tugas tepat waktu dan mendapatkan bonus pengalaman.',
+                        'xp' => 50,
+                        'level_baru' => (!empty($rw['level']) && $rw['level'] > $oldLevel) ? $rw['level'] : null,
+                        'badges' => $rw['badges_baru'] ?? []
+                    ];
                     setFlash('success', $msg);
                 } else {
                     setFlash('warning', 'Tugas berhasil dikumpulkan (Status: Terlambat). Tidak memperoleh bonus XP tepat waktu.');

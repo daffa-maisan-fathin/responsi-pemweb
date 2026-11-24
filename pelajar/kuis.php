@@ -51,15 +51,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         ");
         $stmtSave->execute([$targetKuisId, $userId, $percobaanKe, $skor]);
 
-        // Bonus XP jika skor sempurna (100)
-        $msg = "Kuis selesai! Skor Anda: $skor/100 (Percobaan ke-$percobaanKe).";
+        $oldLevel = $_SESSION['level'] ?? 1;
+        $rw = null;
         if ($skor === 100) {
             $rw = tambahXP($conn, $userId, 'kuis_sempurna');
-            $msg .= " Sempurna! Anda mendapatkan bonus +40 XP!";
-            if (!empty($rw['badges_baru'])) {
-                $msg .= " Badge baru: " . implode(', ', $rw['badges_baru']);
-            }
+            $msg = "Kuis selesai! Skor Sempurna: 100/100! Bonus +40 XP!";
+        } else {
+            $rw = tambahXP($conn, $userId, 'selesai_materi');
+            $msg = "Kuis selesai! Skor Anda: $skor/100 (Percobaan ke-$percobaanKe). +15 XP!";
         }
+
+        if (!empty($rw['badges_baru'])) {
+            $msg .= " Badge baru: " . implode(', ', $rw['badges_baru']);
+        }
+
+        $_SESSION['celebration'] = [
+            'title' => ($skor >= 80) ? 'Luar Biasa, Kuis Tuntas!' : 'Kuis Berhasil Diselesaikan!',
+            'message' => 'Kamu menyelesaikan kuis dengan ' . $benar . ' dari ' . $totalSoal . ' soal benar.',
+            'skor' => $skor,
+            'xp' => $rw['xp_didapat'] ?? (($skor === 100) ? 40 : 15),
+            'level_baru' => (!empty($rw['level']) && $rw['level'] > $oldLevel) ? $rw['level'] : null,
+            'badges' => $rw['badges_baru'] ?? []
+        ];
 
         setFlash('success', $msg);
         header("Location: " . base_url('pelajar/kuis.php?id=' . $targetKuisId));

@@ -119,8 +119,56 @@ foreach ($daftarKelas as $kls) {
 require_once BASE_PATH . '/includes/layout_header.php';
 ?>
 
-<!-- BREADCRUMB & HEADER -->
-<div class="space-y-1 mb-6">
+<style>
+@media print {
+    header, aside, .no-print, nav, footer, button, .breadcrumb, a[href] {
+        display: none !important;
+    }
+    body, main {
+        background: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+        font-size: 12pt !important;
+        color: #000 !important;
+    }
+    .print-only {
+        display: block !important;
+    }
+    .card-print {
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        margin-bottom: 1.5rem !important;
+    }
+}
+.print-only {
+    display: none;
+}
+</style>
+
+<!-- KOP RAPOR RESMI (HANYA MUNCUL SAAT CETAK / PRINT) -->
+<div class="print-only mb-6 border-b-2 border-slate-800 pb-4">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-black tracking-wide text-slate-900 uppercase">QUESTUDY LMS</h1>
+            <p class="text-xs text-slate-600 font-medium">Platform Pembelajaran Terpadu & Gamifikasi (SDGs 4 - Quality Education)</p>
+            <p class="text-xs text-slate-500">Transkrip & Rapor Hasil Evaluasi Belajar Peserta Didik</p>
+        </div>
+        <div class="text-right text-xs text-slate-600">
+            <p>Tanggal Cetak: <strong><?= date('d F Y, H:i'); ?> WIB</strong></p>
+            <p>ID Peserta: <strong>#QST-<?= str_pad($userId, 4, '0', STR_PAD_LEFT); ?></strong></p>
+        </div>
+    </div>
+    <div class="mt-4 pt-3 border-t border-slate-200 grid grid-cols-3 gap-2 text-xs">
+        <div>Nama Siswa: <strong><?= e($_SESSION['nama']); ?></strong></div>
+        <div>Email: <strong><?= e($_SESSION['email']); ?></strong></div>
+        <div>Peran: <strong class="uppercase"><?= e($_SESSION['role']); ?></strong></div>
+    </div>
+</div>
+
+<!-- BREADCRUMB & HEADER (LAYAR BIASA) -->
+<div class="space-y-1 mb-6 no-print">
     <div class="flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
@@ -131,9 +179,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <h1 class="text-2xl font-extrabold text-slate-800">Rapor Pencapaian Akademik</h1>
             <p class="text-xs text-slate-500">Transparansi evaluasi belajar, rekap nilai tugas, kuis, serta konversi huruf mutu.</p>
         </div>
-        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-print"></i>
-            <span>Cetak Rapor</span>
+        <button type="button" onclick="window.print()" class="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-print text-[#0066CC]"></i>
+            <span>Cetak Rapor Resmi</span>
         </button>
     </div>
 </div>
@@ -248,6 +296,26 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </div>
             </div>
         <?php endforeach; ?>
+    </div>
+
+    <!-- TANDA TANGAN (HANYA MUNCUL DI PRINT) -->
+    <div class="print-only mt-10 pt-6">
+        <div class="grid grid-cols-2 text-center text-xs">
+            <div>
+                <p>Mengetahui,</p>
+                <p class="font-bold">Kepala Akademik Questudy</p>
+                <div class="h-16"></div>
+                <p class="font-bold underline">Prof. Dr. Ir. Pembina LMS, M.Kom.</p>
+                <p class="text-slate-500">NIP. 19850720 201012 1 001</p>
+            </div>
+            <div>
+                <p>Yogyakarta, <?= date('d F Y'); ?></p>
+                <p class="font-bold">Peserta Didik</p>
+                <div class="h-16"></div>
+                <p class="font-bold underline"><?= e($_SESSION['nama']); ?></p>
+                <p class="text-slate-500">ID: #QST-<?= str_pad($userId, 4, '0', STR_PAD_LEFT); ?></p>
+            </div>
+        </div>
     </div>
 <?php endif; ?>
 
