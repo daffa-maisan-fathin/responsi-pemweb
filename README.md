@@ -22,19 +22,37 @@
 
 ---
 
-## Pemetaan 9 Modul Terintegrasi
+## Penerapan 7 Modul Praktikum Pemrograman Web 1 (Asprak Informatika Unsoed)
 
-| No | Modul Sistem | Deskripsi Implementasi Fitur | Berkas Utama |
+Aplikasi **Questudy** dibangun dengan menerapkan seluruh materi dari **7 Modul Praktikum Pemrograman Web 1** yang telah dipelajari selama perkuliahan di Jurusan Informatika Unsoed:
+
+| No | Modul Praktikum | Materi Silabus Lab | Penerapan Nyata di Aplikasi Questudy |
+|:---:|---|---|---|
+| **Modul 1** | **HTML Dasar** | Struktur DTD `<!DOCTYPE html>`, tag `<html>`, `<head>`, `<body>`, heading `<h1>`–`<h6>`, format teks (`<b>`, `<i>`, `<mark>`), gambar `<img>`, dan list `<ul>`, `<ol>`, `<dl>`. | Kerangka seluruh halaman aplikasi, tipografi heading pada dashboard, render avatar profil `<img>`, dan navigasi sidebar list. |
+| **Modul 2** | **HTML Lanjut** | Elemen semantik (`<header>`, `<main>`, `<nav>`, `<footer>`), *hyperlink* `<a>`, formulir (`<form>`, `<input>`, `<textarea>`, `<select>`), dan tabel (`<table>`, `<tr>`, `<td>`, `<th>`, colspan, rowspan). | Layout modular sistem, formulir login/register/tugas/kuis, tabel rekapitulasi nilai rapor dan pemantauan Early Warning System (EWS). |
+| **Modul 3** | **CSS (Cascading Style Sheet)** | Selector (Tag, ID, Class, Group), penataan tata letak (*box model*, margin, padding, border), warna, shadow, background, inline style, internal style, dan external CSS. | Tampilan modern responsif menggunakan Tailwind CSS, kartu-kartu dashboard elevasi shadow, custom progress bar XP, dan transisi hover interaktif. |
+| **Modul 4** | **JavaScript** | Client-side scripting, variabel `let`/`const`, event handling (`onClick`, `onMouseOver`, `onInput`), validasi formulir di browser, manipulasi DOM, dan countdown timer. | Timer hitung mundur kuis online dengan auto-submit, engine Pomodoro focus timer 25m/5m, efek 3D rotasi Flashcards, filter pencarian realtime instan pada katalog, animasi Maskot Paus SVG, dan sintesis audio air alami via Web Audio API. |
+| **Modul 5** | **PHP Dasar** | Sintaks `<?php ?>`, variabel `$`, tipe data, operator aritmatika & logika, struktur kontrol (`if-else`, loops `foreach`, `while`), modularisasi `include`/`require`, dan fungsi kustom (*functions*). | Logika bisnis backend, kalkulasi formula XP & leveling `floor(xp/100)+1`, modularisasi tata letak (`layout_header.php`, `layout_footer.php`), pemrosesan array dinamis, dan helper keamanan `e()`. |
+| **Modul 6** | **PHP CRUD & Database MySQL** | Koneksi database server, manipulasi data CRUD (*Create, Read, Update, Delete*), query relasional SQL, filter data, dan eksekusi query interaktif. | Manajemen database 22+ tabel relasional via PDO Prepared Statements, operasi CRUD lengkap (kelas, materi, tugas, kuis, jadwal mentoring, ulasan rating). |
+| **Modul 7** | **PHP SESSION & User Authentication** | Konsep session (`session_start()`, `session_destroy()`, `session_unset()`, `$_SESSION`), User Authentication (Registrasi akun, Login verifikasi kata sandi, proteksi akses halaman/session check, dan logout). | Sistem otentikasi login single-door multi-role (Admin, Tutor, Pelajar), registrasi akun baru, proteksi role `cekRole()`, *inactivity timeout* otomatis 30 menit, regenerasi session ID, dan penyimpanan data sesi pengguna aktif. |
+
+---
+
+## Pemetaan 9 Modul Logika Bisnis Aplikasi (Ketentuan Responsi)
+
+Sesuai dengan ketentuan **Bab II Pasal 2.3 Buku Panduan Responsi** (wajib mengimplementasikan minimal 9 modul yang mendukung logika bisnis aplikasi dan mengintegrasikan materi praktikum), Questudy mengimplementasikan modul-modul berikut:
+
+| No | Modul Logika Bisnis | Deskripsi Implementasi Fitur & Integrasi Materi Praktikum | Berkas Utama |
 |---|---|---|---|
-| **1** | **Autentikasi & Autorisasi Multi-Role** | Login satu pintu, pendaftaran mandiri (Pelajar langsung aktif, Tutor status pending verifikasi admin), proteksi role `cekRole()`, *session inactivity timeout* 30 menit, update *streak* harian, dan sanitasi XSS `e()`. | `auth/login.php`<br>`auth/register.php`<br>`auth/logout.php`<br>`config/koneksi.php` |
-| **2** | **Manajemen Kelas & Silabus** | Pembuatan kelas dengan *generator* kode acak unik 6 karakter, pendaftaran kelas via kode, pengelolaan anggota kelas, dan publikasi pengumuman kelas. | `pengajar/kelas.php`<br>`pelajar/kelas.php` |
-| **3** | **Materi Pembelajaran Multimodal** | Dukungan materi artikel teks terformat, unggahan modul dokumen berkas (PDF/DOCX/ZIP), dan tautan referensi eksternal, lengkap dengan tombol status "Tandai Selesai" (+20 XP). | `pengajar/materi.php`<br>`pelajar/materi.php` |
-| **4** | **Catatan Mandiri & Forum Diskusi** | CRUD catatan pribadi (*personal notes*) pelajar per materi dan forum tanya-jawab dua arah antara pengajar dan pelajar di setiap modul materi. | `pelajar/materi.php`<br>`pengajar/materi.php` |
-| **5** | **Manajemen Tugas & Penilaian** | Publikasi tugas bertenggat waktu, pengumpulan jawaban teks & berkas tugas, deteksi otomatis status *Tepat Waktu* (+50 XP) vs *Terlambat*, serta formulir penilaian 0–100 dan komentar evaluasi pengajar. | `pengajar/tugas.php`<br>`pelajar/tugas.php` |
-| **6** | **Kuis Online & Bank Soal** | Pembuatan kuis dengan batas durasi menit dan batas kuota percobaan, bank soal pilihan ganda (A, B, C, D), *Countdown Timer JavaScript* berfitur *auto-submit* saat waktu habis, *auto-grading*, dan bonus XP skor 100. | `pengajar/kuis.php`<br>`pelajar/kuis.php` |
-| **7** | **Mentoring Tutor Sebaya & Ulasan** | Pengajuan booking konsultasi privat pelajar ke tutor/pengajar, integrasi tautan Google Meet, sistem rating bintang 1–5 interaktif, dan ulasan kepuasan (+30 XP). | `pelajar/booking_tutor.php`<br>`pelajar/rating_ulasan.php`<br>`pengajar/booking.php` |
-| **8** | **Ruang Belajar Mandiri (4 Tab)** | **Tab 1: Pomodoro Timer** (25m fokus, 5m istirahat, auto simpan +15 XP); **Tab 2: 3D Flashcards** (efek flip rotasi 3D dan tanda status hafal); **Tab 3: Planner** (agenda tenggat tugas & checklist target mandiri); **Tab 4: Statistik** (jam fokus, streak, dan grafik batang aktivitas mingguan). | `pelajar/ruang_belajar.php` |
-| **9** | **Gamifikasi & Peringatan Dini (EWS)** | **Gamifikasi:** Formula XP, Leveling (`floor(xp/100)+1`), Leaderboard peringkat kelas, dan 5 Koleksi Lencana.<br>**Early Warning System:** Algoritma pemindai siswa berisiko (tugas terlambat > X, rata-rata nilai < Y, inaktif > Z hari) dan formulir pencatatan tindak lanjut bimbingan. | `pelajar/gamifikasi.php`<br>`pengajar/pemantauan.php`<br>`admin/aturan_moderasi.php` |
+| **1** | **Autentikasi & Autorisasi Multi-Role** | Login single-door dengan 1-klik akun demo, pendaftaran mandiri Pelajar & Tutor, proteksi role `cekRole()`, session timeout 30 menit, update streak harian, dan sanitasi XSS `e()`. *(Menerapkan Modul 2, 5, 6, 7)* | `auth/login.php`<br>`auth/register.php`<br>`auth/logout.php`<br>`config/koneksi.php` |
+| **2** | **Manajemen Kelas & Silabus** | Pembuatan kelas dengan generator kode unik 6 karakter, pendaftaran kelas via kode/katalog, pengelolaan kuota & anggota kelas, serta pengumuman. *(Menerapkan Modul 1, 2, 5, 6, 7)* | `pengajar/kelas.php`<br>`pelajar/kelas.php`<br>`pelajar/katalog.php` |
+| **3** | **Materi Pembelajaran Multimodal** | Publikasi artikel materi terformat, unggahan berkas dokumen modul (PDF/DOCX/ZIP), tautan eksternal, dan tombol status "Tandai Selesai" (+20 XP). *(Menerapkan Modul 1, 3, 5, 6, 7)* | `pengajar/materi.php`<br>`pelajar/materi.php` |
+| **4** | **Catatan Mandiri & Forum Diskusi** | Fitur CRUD catatan pribadi (*personal notes*) pelajar per materi dan forum tanya-jawab interaktif dua arah antara pengajar dan pelajar. *(Menerapkan Modul 2, 4, 5, 6, 7)* | `pelajar/materi.php`<br>`pengajar/materi.php` |
+| **5** | **Manajemen Tugas & Penilaian** | Publikasi tugas bertenggat waktu, pengumpulan berkas jawaban siswa, deteksi otomatis status *Tepat Waktu* (+50 XP) vs *Terlambat*, serta form penilaian 0–100 dan komentar evaluasi. *(Menerapkan Modul 2, 3, 5, 6, 7)* | `pengajar/tugas.php`<br>`pelajar/tugas.php` |
+| **6** | **Kuis Online & Bank Soal** | Pembuatan kuis durasi menit dan batas kuota percobaan, bank soal pilihan ganda, *Countdown Timer JavaScript* berfitur *auto-submit* saat waktu habis, *auto-grading*, dan bonus XP. *(Menerapkan Modul 2, 4, 5, 6, 7)* | `pengajar/kuis.php`<br>`pelajar/kuis.php` |
+| **7** | **Mentoring Tutor Sebaya & Ulasan** | Pengajuan booking konsultasi privat pelajar ke tutor/pengajar, integrasi tautan Google Meet langsung, sistem rating bintang 1–5 interaktif, dan ulasan kepuasan (+30 XP). *(Menerapkan Modul 2, 4, 5, 6, 7)* | `pelajar/booking_tutor.php`<br>`pelajar/rating_ulasan.php`<br>`pengajar/booking.php` |
+| **8** | **Ruang Belajar Mandiri (4 Tab)** | **Tab 1:** Pomodoro Timer dengan Maskot Paus ekspresif & audio air relaksasi Web Audio API; **Tab 2:** 3D Flashcards interaktif flip rotasi; **Tab 3:** Planner agenda target belajar; **Tab 4:** Statistik aktivitas mingguan. *(Menerapkan Modul 1, 3, 4, 5, 6, 7)* | `pelajar/ruang_belajar.php`<br>`includes/maskot_paus.php` |
+| **9** | **Gamifikasi & Peringatan Dini (EWS)** | **Gamifikasi:** Formula XP, Leveling (`floor(xp/100)+1`), Leaderboard peringkat kelas, koleksi lencana, modal perayaan confetti, serta cetak rapor & sertifikat kelulusan.<br>**Early Warning System:** Algoritma pemindai siswa berisiko (tugas terlambat > X, nilai < Y, inaktif > Z hari) dan form pencatatan tindak lanjut bimbingan. *(Menerapkan Modul 2, 3, 4, 5, 6, 7)* | `pelajar/gamifikasi.php`<br>`pengajar/pemantauan.php`<br>`pelajar/rapor.php`<br>`pelajar/sertifikat.php` |
 
 ---
 
