@@ -7,9 +7,9 @@
 ### Tim Pengembang (Kelompok)
 | No | Nama Anggota | NIM | Peran Utama |
 |:---:|---|:---:|---|
-| **1** | **Daffa Maisan Fathin** | **H1D025054** | Fullstack & Arsitektur Sistem, Modul Gamifikasi, Ruang Belajar, Otentikasi & Database |
-| **2** | **Sari Nur Aini** | **H1D025082** | Frontend & UI/UX Design, Komponen Maskot Paus Interaktif, Audio Web API, Integrasi EWS |
-| **3** | **Fattati Yumna Nurjanah** | **H1D025162** | Backend & Validasi Sistem, Modul Administrator, Moderasi Konten, Pelaporan & Dokumentasi |
+| **1** | **Daffa Maisan Fathin** | **H1D025054** | **Backend Developer** (Arsitektur Database MySQL, Logika Bisnis PHP, Integrasi Gamifikasi, Keamanan & Autentikasi) |
+| **2** | **Sari Nur Aini** | **H1D025082** | **Frontend Developer** (Implementasi Antarmuka Web, Komponen Interaktif Maskot Paus & Web Audio API, Integrasi Tailwind CSS & JavaScript) |
+| **3** | **Fattati Yumna Nurjanah** | **H1D025162** | **UI/UX Designer** (Perancangan Desain Antarmuka, Wireframing, Konsistensi Visual Pengguna, Aset Grafis & Media Showcase) |
 
 ---
 
