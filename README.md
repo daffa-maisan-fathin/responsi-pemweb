@@ -1,5 +1,15 @@
 # Questudy — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini
-> **Tema Pembangunan Berkelanjutan (SDGs 4): Quality Education (Pendidikan Berkualitas, Inklusif, dan Setara)**
+> **Tema Pembangunan Berkelanjutan (SDGs 4): Quality Education (Pendidikan Berkualitas, Inklusif, dan Setara)**  
+> **Responsi 2 Praktikum Pemrograman Web I — Jurusan Informatika, Fakultas Teknik, Universitas Jenderal Soedirman (2026)**
+
+---
+
+### Tim Pengembang (Kelompok)
+| No | Nama Anggota | NIM | Peran Utama |
+|:---:|---|:---:|---|
+| **1** | **Daffa Maisan Fathin** | **H1D025054** | Fullstack & Arsitektur Sistem, Modul Gamifikasi, Ruang Belajar, Otentikasi & Database |
+| **2** | **Sari Nur Aini** | **H1D025082** | Frontend & UI/UX Design, Komponen Maskot Paus Interaktif, Audio Web API, Integrasi EWS |
+| **3** | **Fattati Yumna Nurjanah** | **H1D025162** | Backend & Validasi Sistem, Modul Administrator, Moderasi Konten, Pelaporan & Dokumentasi |
 
 ---
 
@@ -147,6 +157,23 @@ Perubahan utama pada versi ini (import ulang `database.sql` agar struktur baru t
 - **Keamanan:** celah login (password `123456` dapat masuk ke akun mana pun) dihapus; bug pendaftaran akun (jumlah kolom dan nilai INSERT tidak sama) diperbaiki.
 
 Tabel baru: `pengaturan_sistem`, `laporan`. Kolom baru: `users.deskripsi_tutor`, `users.portofolio_url`, `kelas.kategori`, `kelas.tingkat`, `kelas.kuota`, `booking_tutor.alasan_batal`.
+
+---
+
+## Fitur Interaktif Tambahan Terkini
+1. **Maskot Paus Interaktif & White-Noise Audio Alami (`includes/maskot_paus.php`, `pelajar/ruang_belajar.php`):**
+   - Animasi SVG paus yang merespons status belajar (mode fokus, mode istirahat, dan mode santai).
+   - Generator suara air alami (derau cokelat & tetesan air menenangkan) berbasis Web Audio API langsung dari peramban.
+2. **Akun Demo Cepat 1-Klik (`auth/login.php`):**
+   - Akses instan bagi penguji/asisten praktikum untuk login sebagai Admin, Tutor, atau Pelajar tanpa perlu mengetik manual.
+3. **Cetak Rapor Akademik & Sertifikat Kelulusan Resmi (`pelajar/rapor.php`, `pelajar/sertifikat.php`):**
+   - Rapor cetak resmi dengan kop surat, transkrip nilai, dan kolom tanda tangan.
+   - Sertifikat kelulusan elegan dengan nomor seri unik verifikasi `QST/TAHUN/KELAS/USER` yang siap cetak atau unduh sebagai PDF.
+4. **Efek Perayaan Gamifikasi & Confetti Pesta (`includes/layout_footer.php`):**
+   - Pop-up modal perayaan saat kuis atau tugas diselesaikan dengan semburan efek animasi confetti warna-warni dan notifikasi naik level.
+5. **Pencarian Realtime Instan Katalog Kelas (`pelajar/katalog.php`):**
+   - Filter kartu kelas secara instan saat mengetik tanpa perlu reload halaman.
+
 
 - **Tampilan baru:** gaya cerah berwarna (gradasi biru-ungu) dengan satu font, **Plus Jakarta Sans**, di semua halaman; halaman masuk dan daftar memakai panel deskripsi di sebelah formulir; beranda memiliki bagian Fitur, Cara kerja, dan FAQ; efek hover pada kartu, tombol, menu, dan baris tabel.
 - **Palet warna dan maskot:** palet Iced Denim (#5798D7), Frost (#E6F1FA), Pistachio (#B9C255), Lemon Cream (#EDE986), dengan sentuhan Raspberry Rose (#F2619C). Maskot paus beranimasi (`includes/maskot_paus.php`) tampil di dashboard, halaman Pomodoro (bereaksi saat fokus, jeda, dan istirahat), serta panel masuk dan daftar. Dashboard pelajar dibuat ringkas dalam satu layar.
