@@ -38,7 +38,73 @@ Aplikasi **Questudy** dibangun dengan menerapkan seluruh materi dari **7 Modul P
 
 ---
 
-## Tumpukan Teknologi (Tech Stack)
+## 9 Fitur Utama Aplikasi (Logika Bisnis & Penjelasan Kode)
+
+Sesuai dengan ketentuan **Bab II Pasal 2.3 Buku Panduan Responsi** (minimal 9 fitur/modul yang mendukung logika bisnis aplikasi dan mengintegrasikan materi praktikum), berikut adalah rincian fungsional dan penjelasan kode dari **9 Fitur Utama Questudy**:
+
+### 1. Autentikasi Multi-Role & Single-Door Login
+* **Fungsi Bisnis:** Satu pintu masuk untuk 3 hak akses pengguna berbeda (**Admin**, **Tutor**, dan **Pelajar**). Dilengkapi tombol *Akun Demo Cepat (1-Klik)* untuk mempermudah penilaian. Calon tutor yang mendaftar mandiri otomatis berstatus `pending` dan wajib diverifikasi oleh administrator sebelum dapat membuka kelas.
+* **Penjelasan Kode & Logika:**
+  * Pengamanan kata sandi menggunakan hashing standar industri Bcrypt melalui `password_hash()` saat registrasi dan `password_verify()` saat login di `auth/login.php`.
+  * Proteksi sesi menggunakan `session_regenerate_id(true)` untuk mencegah serangan *session fixation*.
+  * Otentikasi dan otorisasi halaman diproteksi oleh fungsi modular `cekRole('pelajar')` di `config/koneksi.php`.
+  * Mekanisme *inactivity timeout* otomatis menghancurkan sesi (`session_destroy()`) jika pengguna tidak aktif selama lebih dari 30 menit.
+
+### 2. Manajemen Kelas, Silabus & Katalog Real-Time
+* **Fungsi Bisnis:** Pengajar dapat membuat kelas dengan generator kode unik 6 karakter acak (misal: `PW2026`). Pelajar dapat bergabung melalui kode kelas atau menjelajah kelas keterampilan melalui katalog publik berdasarkan kategori dan tingkat kesulitan (pemula, menengah, lanjut) dengan pembatasan kuota siswa.
+* **Penjelasan Kode & Logika:**
+  * Pembuatan kode acak unik menggunakan kombinasi `substr(str_shuffle("..."), 0, 6)` pada `pengajar/kelas.php`.
+  * Validasi kuota dan pengecekan apakah pelajar sudah terdaftar dieksekusi melalui transaksi relasional PDO di tabel `anggota_kelas`.
+  * Pada `pelajar/katalog.php`, pencarian judul dan filter kategori bekerja secara **real-time instan** menggunakan event listener JavaScript `input` yang menyaring atribut `data-keywords` pada elemen DOM tanpa perlu reload halaman.
+
+### 3. Materi Pembelajaran Multimodal (Teks & Berkas Dokumen)
+* **Fungsi Bisnis:** Tutor dapat mempublikasikan materi artikel teks terformat, mengunggah modul berkas (PDF/DOCX/ZIP), dan menautkan referensi eksternal. Pelajar dapat membaca modul dan menekan tombol *"Tandai Selesai"* untuk mencatat progres belajarnya.
+* **Penjelasan Kode & Logika:**
+  * Logika upload berkas di `pengajar/materi.php` memvalidasi MIME type dan whitelist ekstensi berkas yang diizinkan serta mengamankan nama berkas unik menggunakan fungsi `time()`.
+  * Saat pelajar menekan tombol selesai, sistem mencatat riwayat ke tabel `progres_materi` dan memanggil fungsi `tambahXP($conn, $userId, 'selesai_materi')` untuk menambah +20 XP ke akun pelajar.
+
+### 4. Catatan Mandiri & Forum Diskusi Dua Arah
+* **Fungsi Bisnis:** Di setiap materi pembelajaran, pelajar dapat menulis catatan pribadi (*personal study notes*) yang bersifat privat (hanya bisa dibaca dirinya sendiri). Selain itu, terdapat forum tanya-jawab publik dua arah antara pelajar dan pengajar.
+* **Penjelasan Kode & Logika:**
+  * Catatan pribadi disimpan pada tabel `catatan_materi` dengan filter `WHERE id_pelajar = ? AND id_materi = ?` sehingga privasi antar-siswa terjamin.
+  * Forum diskusi menggunakan relasi ke tabel `diskusi_materi`, di mana setiap pesan disanitasi menggunakan fungsi `e()` (`htmlspecialchars`) untuk mencegah celah Cross-Site Scripting (XSS).
+
+### 5. Manajemen Tugas & Penilaian Terstruktur
+* **Fungsi Bisnis:** Pengajar membuat instruksi tugas bertenggat waktu (*deadline*). Pelajar mengunggah berkas jawaban atau teks. Pengajar memeriksa berkas yang dikumpulkan dan memberikan nilai angka (0–100) serta catatan umpan balik (*feedback*).
+* **Penjelasan Kode & Logika:**
+  * Sistem membandingkan waktu unggah dengan tenggat tugas: `time() > strtotime($deadline)`. Jika tepat waktu, status dicatat `tepat_waktu` dan memicu reward bonus +50 XP. Jika lewat, status dicatat `terlambat` tanpa bonus XP.
+  * Nilai tugas langsung terintegrasi otomatis ke dalam modul Rapor Akademik untuk kalkulasi nilai akhir.
+
+### 6. Kuis Online Countdown Timer & Auto-Grading
+* **Fungsi Bisnis:** Evaluasi pembelajaran berbasis pilihan ganda (A, B, C, D) dengan batasan durasi menit pengerjaan dan kuota maksimal percobaan.
+* **Penjelasan Kode & Logika:**
+  * Engine countdown timer dibangun dengan JavaScript `setInterval()` pada `pelajar/kuis.php`. Ketika sisa detik mencapai nol, fungsi JavaScript secara otomatis memicu `form.submit()` (*auto-submit*).
+  * Di sisi backend, jawaban siswa dibandingkan dengan kunci jawaban pada tabel `soal_kuis`. Skor dihitung proporsional `($benar / $total) * 100`. Jika meraih skor sempurna (100/100), sistem memberikan bonus reward +40 XP dan mengecek pembukaan lencana baru.
+
+### 7. Mentoring Tutor Sebaya & Integrasi Google Meet
+* **Fungsi Bisnis:** Pelajar dapat memesan (*booking*) sesi bimbingan privat 1-on-1 dengan tutor di luar jam kelas. Pengajar dapat menyetujui jadwal dan menyematkan tautan Google Meet / Zoom. Setelah sesi tuntas, pelajar memberikan rating bintang 1–5 dan ulasan.
+* **Penjelasan Kode & Logika:**
+  * Validasi bentrok jadwal di `pelajar/booking_tutor.php` memeriksa apakah tutor atau pelajar bersangkutan sudah memiliki sesi disetujui pada tanggal dan jam yang sama.
+  * Tautan meeting yang dimasukkan tutor ditampilkan dalam bentuk tombol interaktif yang menyala aktif (*pulsing*) di antarmuka pelajar saat hari-H sesi mentoring.
+  * Rata-rata rating pengajar dihitung secara dinamis melalui agregasi SQL `AVG(rating)` dan ditampilkan pada profil pengajar.
+
+### 8. Ruang Belajar Mandiri (Pomodoro, Maskot Paus & Web Audio API)
+* **Fungsi Bisnis:** Fasilitas penunjang produktivitas dan kesehatan mental belajar (mengatasi kejenuhan/burnout) yang terdiri atas: Pomodoro Timer 25 menit fokus & 5 menit istirahat, animasi pendamping Maskot Paus, generator audio white-noise air alami, 3D Flashcards, Planner target belajar, dan grafik statistik mingguan.
+* **Penjelasan Kode & Logika:**
+  * **Maskot Paus Interaktif:** Dibangun dengan vektor SVG murni dan animasi CSS keyframes (`includes/maskot_paus.php`). Memiliki 3 state dinamis: mode santai, mode fokus (efek semprotan air dan gelembung aktif), dan mode istirahat (mata rileks terpejam dan efek *Zzz*).
+  * **Audio Relaksasi Air Alami:** Disintesis langsung di peramban menggunakan **Web Audio API** (`AudioContext`, `createBuffer` derau cokelat, dan `OscillatorNode` untuk tetesan air) tanpa menggunakan file audio MP3 eksternal sama sekali.
+  * **3D Flashcards:** Menerapkan transformasi CSS 3D `perspective` dan `transform: rotateY(180deg)` saat kartu diklik untuk membalik antara pertanyaan dan jawaban.
+
+### 9. Gamifikasi & Early Warning System (EWS)
+* **Fungsi Bisnis:** 
+  * **Gamifikasi:** Formula XP bertingkat, leveling otomatis `floor(xp/100)+1`, papan peringkat (*Leaderboard*), 5 lencana pencapaian (*badges*), efek modal perayaan kembang api confetti saat submit, serta modul Cetak Rapor Transkrip dan Sertifikat Kelulusan Resmi dengan nomor seri unik verifikasi.
+  * **Early Warning System (EWS):** Sistem analitik otomatis di dashboard pengajar yang memindai siswa berisiko tertinggal (tugas terlambat > X, nilai < Y, inaktif > Z hari) dan memberi peringatan visual merah *"Perlu Perhatian"* agar pengajar segera mencatat bimbingan tindak lanjut.
+* **Penjelasan Kode & Logika:**
+  * Fungsi terpusat `tambahXP()` di `config/koneksi.php` secara otomatis mengkalkulasi kenaikan level dan memeriksa syarat XP pada tabel `badges` untuk memberikan lencana baru secara instan.
+  * Algoritma EWS di `pengajar/pemantauan.php` menggunakan subquery SQL untuk mengagregasi keterlambatan pengumpulan tugas dan rata-rata skor kuis per siswa, lalu membandingkannya dengan ambang batas di tabel `aturan_moderasi`.
+  * Fitur cetak Rapor dan Sertifikat di `pelajar/rapor.php` dan `pelajar/sertifikat.php` memanfaatkan CSS `@media print` untuk menyembunyikan navigasi/sidebar dan merender dokumen formal siap cetak atau simpan ke PDF.
+
+---
 - **Backend:** PHP 8+ Native (Berorientasi Objek & Prosedural Bersih)
 - **Database:** MySQL 8.x (Koneksi **PDO Prepared Statements** untuk proteksi total dari SQL Injection)
 - **Frontend Styling:** **Tailwind CSS** (via CDN resmi) dengan kustomisasi Questudy Navy (`#0F294A`), Primary Blue (`#0066CC`), Amber Gamifikasi (`#F59E0B`), dan Red Alert (`#EF4444`).
