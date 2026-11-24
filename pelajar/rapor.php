@@ -168,9 +168,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
                                 <?= ($rp['nilai_akhir'] !== null) ? $rp['nilai_akhir'] : '-'; ?>
                             </span>
                         </div>
-                        <div class="w-14 h-14 rounded-2xl border flex flex-col items-center justify-center <?= $rp['color_class']; ?> shadow-sm">
+                        <div class="min-w-[4.5rem] max-w-[8.5rem] px-3 py-2 rounded-2xl border flex flex-col items-center justify-center text-center <?= $rp['color_class']; ?> shadow-sm">
                             <span class="text-2xl font-black leading-none"><?= $rp['huruf']; ?></span>
-                            <span class="text-[9px] font-bold mt-0.5"><?= $rp['status']; ?></span>
+                            <span class="text-xs font-bold mt-1 leading-tight"><?= $rp['status']; ?></span>
                         </div>
                     </div>
                 </div>

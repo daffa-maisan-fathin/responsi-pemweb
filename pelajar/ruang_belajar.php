@@ -207,8 +207,20 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </button>
             </div>
 
+            <!-- Maskot Paus -->
+            <div class="flex flex-col items-center">
+                <?= maskotPaus('w-44 sm:w-52', 'maskotPomo'); ?>
+                <div id="maskotBicara" class="mt-2 px-4 py-1.5 rounded-full bg-sky-100 text-indigo-700 text-sm font-semibold">Halo! Siap belajar?</div>
+                <div class="mt-3 flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm">
+                    <button type="button" id="btnSuaraAir" class="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
+                        <i class="fa-solid fa-water"></i><span id="labelSuaraAir">Suara air: mati</span>
+                    </button>
+                    <input type="range" id="volSuaraAir" min="0" max="100" value="50" class="w-24 accent-indigo-500" aria-label="Volume suara air">
+                </div>
+            </div>
+
             <!-- Big Digital Timer Display -->
-            <div class="py-6">
+            <div class="py-2">
                 <div id="pomoTimeDisplay" class="text-7xl sm:text-8xl font-black font-mono tracking-wider text-slate-800 drop-shadow-sm">
                     25:00
                 </div>
@@ -264,6 +276,132 @@ require_once BASE_PATH . '/includes/layout_header.php';
         const btnIstirahat = document.getElementById('btnModeIstirahat');
         const formSave = document.getElementById('formSavePomodoro');
 
+        // Maskot paus: mode '' (santai), 'fokus', atau 'istirahat'
+        function setMaskot(mode, teks) {
+            const m = document.getElementById('maskotPomo');
+            const b = document.getElementById('maskotBicara');
+            if (m) {
+                m.classList.remove('maskot-fokus', 'maskot-istirahat');
+                if (mode) m.classList.add('maskot-' + mode);
+            }
+            if (b && teks) b.textContent = teks;
+            if (mode) { suaraAir.putarJikaAktif(); } else { suaraAir.henti(); }
+        }
+
+        // Suara air yang menenangkan, dibuat langsung di browser (tanpa file audio)
+        const suaraAir = (function () {
+            let ctx = null, master = null, sumber = [], gains = [], tetes = null, preview = null;
+            let aktif = false, main = false;
+            try { aktif = localStorage.getItem('suaraAir') === '1'; } catch (e) {}
+            const tombol = document.getElementById('btnSuaraAir');
+            const label = document.getElementById('labelSuaraAir');
+            const slider = document.getElementById('volSuaraAir');
+
+            function sedangBelajar() {
+                const m = document.getElementById('maskotPomo');
+                return !!m && (m.classList.contains('maskot-fokus') || m.classList.contains('maskot-istirahat'));
+            }
+            function perbaruiTombol() { label.textContent = aktif ? 'Suara air: hidup' : 'Suara air: mati'; }
+            function aturVolume() { if (master) master.gain.value = (slider.value / 100) * 0.8; }
+            function derau(jenis) {
+                const panjang = ctx.sampleRate * 4;
+                const buf = ctx.createBuffer(2, panjang, ctx.sampleRate);
+                for (let c = 0; c < 2; c++) {
+                    const d = buf.getChannelData(c);
+                    let last = 0;
+                    for (let i = 0; i < panjang; i++) {
+                        const w = Math.random() * 2 - 1;
+                        if (jenis === 'cokelat') { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; } else { d[i] = w; }
+                    }
+                }
+                return buf;
+            }
+            function tetesAir() {
+                if (!main) return;
+                const t = ctx.currentTime;
+                const o = ctx.createOscillator();
+                o.type = 'sine';
+                const f = 380 + Math.random() * 520;
+                o.frequency.setValueAtTime(f, t);
+                o.frequency.exponentialRampToValueAtTime(f * 1.9, t + 0.09);
+                const g = ctx.createGain();
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(0.12, t + 0.015);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+                o.connect(g); g.connect(master);
+                o.start(t); o.stop(t + 0.25);
+            }
+            function jadwalkanTetes() {
+                clearTimeout(tetes);
+                tetes = setTimeout(function () { tetesAir(); jadwalkanTetes(); }, 900 + Math.random() * 3200);
+            }
+            function mulai() {
+                if (main) return;
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return;
+                if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.connect(ctx.destination); }
+                if (ctx.state === 'suspended') ctx.resume();
+                aturVolume();
+                const t = ctx.currentTime;
+
+                const a = ctx.createBufferSource(); a.buffer = derau('cokelat'); a.loop = true;
+                const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650;
+                const g1 = ctx.createGain(); g1.gain.setValueAtTime(0, t); g1.gain.linearRampToValueAtTime(0.9, t + 2);
+                const lfo = ctx.createOscillator(); lfo.frequency.value = 0.12;
+                const lfoG = ctx.createGain(); lfoG.gain.value = 220;
+                lfo.connect(lfoG); lfoG.connect(lp.frequency);
+                a.connect(lp); lp.connect(g1); g1.connect(master);
+
+                const b = ctx.createBufferSource(); b.buffer = derau('putih'); b.loop = true;
+                const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 0.8;
+                const g2 = ctx.createGain(); g2.gain.setValueAtTime(0, t); g2.gain.linearRampToValueAtTime(0.05, t + 2.5);
+                const lfo2 = ctx.createOscillator(); lfo2.frequency.value = 0.3;
+                const lfo2G = ctx.createGain(); lfo2G.gain.value = 0.03;
+                lfo2.connect(lfo2G); lfo2G.connect(g2.gain);
+                b.connect(bp); bp.connect(g2); g2.connect(master);
+
+                [a, b, lfo, lfo2].forEach(function (n) { n.start(); });
+                sumber = [a, b, lfo, lfo2];
+                gains = [g1, g2];
+                main = true;
+                jadwalkanTetes();
+            }
+            function henti() {
+                clearTimeout(preview);
+                if (!main) return;
+                main = false;
+                clearTimeout(tetes);
+                const t = ctx.currentTime;
+                gains.forEach(function (g) {
+                    g.gain.cancelScheduledValues(t);
+                    g.gain.setValueAtTime(g.gain.value, t);
+                    g.gain.linearRampToValueAtTime(0, t + 0.8);
+                });
+                const lama = sumber;
+                sumber = [];
+                setTimeout(function () { lama.forEach(function (n) { try { n.stop(); } catch (e) {} }); }, 1000);
+            }
+            function putarJikaAktif() { clearTimeout(preview); if (aktif) mulai(); }
+
+            tombol.addEventListener('click', function () {
+                aktif = !aktif;
+                try { localStorage.setItem('suaraAir', aktif ? '1' : '0'); } catch (e) {}
+                perbaruiTombol();
+                if (aktif) {
+                    mulai();
+                    if (!sedangBelajar()) {
+                        // pratinjau singkat agar pengguna bisa mendengar suaranya
+                        preview = setTimeout(function () { if (!sedangBelajar()) henti(); }, 6000);
+                    }
+                } else {
+                    henti();
+                }
+            });
+            slider.addEventListener('input', aturVolume);
+            perbaruiTombol();
+            return { mulai: mulai, henti: henti, putarJikaAktif: putarJikaAktif };
+        })();
+
         function renderTime() {
             const m = Math.floor(totalSeconds / 60);
             const s = totalSeconds % 60;
@@ -279,6 +417,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             btnFokus.className = 'px-5 py-2 rounded-lg text-xs font-bold bg-[#0066CC] text-white shadow-sm transition';
             btnIstirahat.className = 'px-5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition';
             statusText.textContent = 'Siap Memulai Sesi Belajar';
+            setMaskot('', 'Siap fokus?');
             renderTime();
         });
 
@@ -289,6 +428,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             btnIstirahat.className = 'px-5 py-2 rounded-lg text-xs font-bold bg-[#10B981] text-white shadow-sm transition';
             btnFokus.className = 'px-5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition';
             statusText.textContent = 'Mode Istirahat Singkat';
+            setMaskot('', 'Mau istirahat sebentar?');
             renderTime();
         });
 
@@ -298,13 +438,14 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 startBtn.classList.add('hidden');
                 pauseBtn.classList.remove('hidden');
                 statusText.textContent = (currentMode === 'fokus') ? 'Fokus Sedang Berjalan... Tetap Semangat!' : 'Istirahatkan Pikiran Anda...';
+                setMaskot(currentMode === 'fokus' ? 'fokus' : 'istirahat', currentMode === 'fokus' ? 'Ayo fokus, kamu pasti bisa!' : 'Santai dulu ya, tarik napas.');
 
                 timerInterval = setInterval(() => {
                     totalSeconds--;
                     renderTime();
 
                     if (totalSeconds <= 0) {
-                        clearInterval(timerInterval);
+                        clearInterval(timerInterval); suaraAir.henti();
                         isRunning = false;
                         startBtn.classList.remove('hidden');
                         pauseBtn.classList.add('hidden');
@@ -323,21 +464,23 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
         pauseBtn.addEventListener('click', () => {
             if (isRunning) {
-                clearInterval(timerInterval);
+                clearInterval(timerInterval); suaraAir.henti();
                 isRunning = false;
                 startBtn.classList.remove('hidden');
                 pauseBtn.classList.add('hidden');
                 statusText.textContent = 'Sesi Dijeda';
+                setMaskot('', 'Dijeda dulu. Lanjut kalau sudah siap ya.');
             }
         });
 
         resetBtn.addEventListener('click', () => {
-            clearInterval(timerInterval);
+            clearInterval(timerInterval); suaraAir.henti();
             isRunning = false;
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
             totalSeconds = (currentMode === 'fokus') ? 25 * 60 : 5 * 60;
             statusText.textContent = (currentMode === 'fokus') ? 'Siap Memulai Sesi Belajar' : 'Mode Istirahat Singkat';
+            setMaskot('', 'Halo! Siap belajar?');
             renderTime();
         });
     </script>

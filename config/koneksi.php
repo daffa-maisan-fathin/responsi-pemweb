@@ -238,3 +238,5 @@ function gabungKelas($conn, $idPelajar, $idKelas) {
     $stmtJoin->execute([$idKelas, $idPelajar]);
     return ['ok' => true, 'pesan' => 'Berhasil bergabung ke kelas: ' . $kelas['nama_kelas'] . '!'];
 }
+
+require_once __DIR__ . '/../includes/maskot_paus.php';

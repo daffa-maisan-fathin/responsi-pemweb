@@ -104,6 +104,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Lencana pelajar (yang sudah diraih dan yang masih terkunci)
+$daftarBadge = [];
+$jumlahBadgeDapat = 0;
+if ($user['role'] === 'pelajar') {
+    $stmtBadge = $conn->prepare("
+        SELECT b.*, ub.diperoleh_pada
+        FROM badges b
+        LEFT JOIN user_badges ub ON ub.id_badge = b.id_badge AND ub.id_pelajar = ?
+        ORDER BY b.syarat_xp ASC
+    ");
+    $stmtBadge->execute([$userId]);
+    $daftarBadge = $stmtBadge->fetchAll();
+    foreach ($daftarBadge as $bdg) {
+        if ($bdg['diperoleh_pada']) $jumlahBadgeDapat++;
+    }
+}
+
 require_once BASE_PATH . '/includes/layout_header.php';
 ?>
 
@@ -178,6 +195,31 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
     <!-- FORM EDIT PROFIL & GANTI PASSWORD (SISI KANAN) -->
     <div class="lg:col-span-2 space-y-6">
+
+        <?php if ($user['role'] === 'pelajar' && !empty($daftarBadge)): ?>
+        <!-- LENCANA -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-slate-800">Lencana Saya</h3>
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700"><?= $jumlahBadgeDapat; ?> dari <?= count($daftarBadge); ?></span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <?php foreach ($daftarBadge as $bdg): $dapat = !empty($bdg['diperoleh_pada']); ?>
+                    <div title="<?= e($bdg['deskripsi']); ?>" class="p-4 rounded-2xl text-center transition hover:-translate-y-1 hover:shadow-lg <?= $dapat ? 'bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200' : 'bg-slate-50 border border-slate-200'; ?>">
+                        <div class="text-4xl <?= $dapat ? '' : 'grayscale opacity-40'; ?>"><?= e($bdg['ikon']); ?></div>
+                        <div class="mt-2 text-sm font-bold <?= $dapat ? 'text-slate-800' : 'text-slate-500'; ?>"><?= e($bdg['nama_badge']); ?></div>
+                        <div class="mt-0.5 text-xs text-slate-500">
+                            <?php if ($dapat): ?>
+                                Diraih <?= date('d M Y', strtotime($bdg['diperoleh_pada'])); ?>
+                            <?php else: ?>
+                                <i class="fa-solid fa-lock text-[10px] mr-1"></i>Butuh <?= number_format($bdg['syarat_xp']); ?> XP
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- FORM 1: DATA DIRI & FOTO -->
         <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">

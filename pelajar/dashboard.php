@@ -95,254 +95,233 @@ $stmtPengumuman = $conn->prepare("
 $stmtPengumuman->execute([$userId]);
 $daftarPengumuman = $stmtPengumuman->fetchAll();
 
+// 8. Aktivitas fokus 7 hari terakhir (menit per hari)
+$namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+$stmtFokus = $conn->prepare("SELECT tanggal, SUM(durasi_menit) AS menit FROM sesi_pomodoro WHERE id_pelajar = ? AND tanggal >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) GROUP BY tanggal");
+$stmtFokus->execute([$userId]);
+$fokusMap = [];
+foreach ($stmtFokus->fetchAll() as $rowF) {
+    $fokusMap[$rowF['tanggal']] = (int)$rowF['menit'];
+}
+$grafikFokus = [];
+for ($d = 6; $d >= 0; $d--) {
+    $tgl = date('Y-m-d', strtotime("-$d day"));
+    $grafikFokus[] = [
+        'label' => $namaHari[(int)date('w', strtotime($tgl))],
+        'menit' => $fokusMap[$tgl] ?? 0,
+        'hariIni' => ($d === 0),
+    ];
+}
+$totalMenitMinggu = array_sum(array_column($grafikFokus, 'menit'));
+$maksMenit = max(30, max(array_column($grafikFokus, 'menit')));
+
+// 9. Progres per kelas
+$stmtProgresKelas = $conn->prepare("
+    SELECT k.id_kelas, k.nama_kelas, k.kategori, u.nama AS nama_tutor,
+        (SELECT COUNT(*) FROM materi m WHERE m.id_kelas = k.id_kelas) AS total_materi,
+        (SELECT COUNT(*) FROM progres_materi pm JOIN materi m2 ON pm.id_materi = m2.id_materi WHERE m2.id_kelas = k.id_kelas AND pm.id_pelajar = ?) AS materi_selesai
+    FROM anggota_kelas ak
+    JOIN kelas k ON ak.id_kelas = k.id_kelas
+    JOIN users u ON k.id_pengajar = u.id_user
+    WHERE ak.id_pelajar = ?
+    ORDER BY k.nama_kelas ASC
+");
+$stmtProgresKelas->execute([$userId, $userId]);
+$progresKelas = $stmtProgresKelas->fetchAll();
+
+// 10. Kalender bulan ini: tanggal yang punya tenggat tugas atau kuis
+$bulanIni = (int)date('n');
+$tahunIni = (int)date('Y');
+$stmtKal = $conn->prepare("
+    SELECT DAY(t.tenggat_waktu) AS hari FROM tugas t JOIN anggota_kelas ak ON t.id_kelas = ak.id_kelas
+    WHERE ak.id_pelajar = ? AND YEAR(t.tenggat_waktu) = ? AND MONTH(t.tenggat_waktu) = ?
+    UNION
+    SELECT DAY(q.tenggat_waktu) AS hari FROM kuis q JOIN anggota_kelas ak2 ON q.id_kelas = ak2.id_kelas
+    WHERE ak2.id_pelajar = ? AND YEAR(q.tenggat_waktu) = ? AND MONTH(q.tenggat_waktu) = ?
+");
+$stmtKal->execute([$userId, $tahunIni, $bulanIni, $userId, $tahunIni, $bulanIni]);
+$hariTenggat = array_map('intval', array_column($stmtKal->fetchAll(), 'hari'));
+$namaBulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$hariPertama = (int)date('N', strtotime("$tahunIni-$bulanIni-01"));
+$jumlahHari = (int)date('t', strtotime("$tahunIni-$bulanIni-01"));
+$warnaKelas = ['from-sky-400 to-indigo-500', 'from-emerald-400 to-emerald-500', 'from-violet-300 to-violet-500', 'from-amber-300 to-amber-400', 'from-pink-400 to-pink-500'];
+
 require_once BASE_PATH . '/includes/layout_header.php';
 ?>
 
-<!-- BREADCRUMB & HEADER -->
-<div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
-        <span class="text-slate-800 font-semibold">Dashboard Pelajar</span>
-    </div>
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+<!-- SAPAAN + MASKOT -->
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+        <?= maskotPaus('w-16 shrink-0'); ?>
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800">Semangat Belajar, <?= e($user['nama']); ?>! </h1>
-            <p class="text-xs text-slate-500">Pantau progres materi, capaian level XP, dan agenda tugas akademik Anda.</p>
+            <h1 class="text-2xl font-extrabold text-slate-800">Halo, <?= e($user['nama']); ?>!</h1>
+            <p class="text-sm text-slate-500">Yuk lanjut belajar hari ini.</p>
         </div>
-        <div class="flex items-center gap-2">
-            <a href="<?= base_url('pelajar/ruang_belajar.php'); ?>" class="px-4 py-2 rounded-xl bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition shadow-sm flex items-center gap-2">
-                <i class="fa-solid fa-stopwatch"></i>
-                <span>Buka Ruang Fokus</span>
-            </a>
-            <a href="<?= base_url('pelajar/kelas.php'); ?>" class="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold transition">
-                + Gabung Kelas
-            </a>
-        </div>
+    </div>
+    <div class="flex gap-2">
+        <a href="<?= base_url('pelajar/ruang_belajar.php'); ?>" class="px-5 py-2.5 rounded-full bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-bold">Mulai fokus</a>
+        <a href="<?= base_url('pelajar/katalog.php'); ?>" class="px-5 py-2.5 rounded-full bg-white border border-indigo-100 text-indigo-600 text-sm font-bold hover:bg-indigo-50 hover:-translate-y-0.5">Cari kelas</a>
     </div>
 </div>
 
-<!-- KARTU STATISTIK & GAMIFIKASI UTAMA -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-    
-    <!-- Kartu Level & Bar XP (Amber #F59E0B) -->
-    <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm relative overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Peringkat & XP</span>
-            <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-sm border border-amber-200">
-                <i class="fa-solid fa-bolt"></i>
-            </span>
-        </div>
-        <div class="flex items-baseline gap-2">
-            <div class="text-2xl font-extrabold text-slate-800">Level <?= $currentLevel; ?></div>
-            <span class="text-xs font-semibold text-amber-600">(<?= number_format($currentXP); ?> XP)</span>
-        </div>
-        <!-- Progress Bar ke level selanjutnya -->
-        <div class="mt-3">
-            <div class="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
-                <span>Progress Level <?= $currentLevel + 1; ?></span>
-                <span><?= $progressPercent; ?>%</span>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+    <!-- BARIS 1: FOKUS, LEVEL, KALENDER -->
+    <section class="lg:col-span-5 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm lift">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <h2 class="text-base font-bold text-slate-800">Aktivitas Fokus</h2>
+                <p class="text-xs text-slate-500">Menit belajar 7 hari terakhir</p>
             </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                <div class="bg-gradient-to-r from-amber-400 to-[#F59E0B] h-2.5 rounded-full transition-all duration-500" style="width: <?= $progressPercent; ?>%"></div>
+            <div class="text-right">
+                <div class="text-lg font-extrabold text-indigo-600"><?= floor($totalMenitMinggu / 60); ?>j <?= $totalMenitMinggu % 60; ?>m</div>
+                <div class="text-xs text-slate-500">minggu ini</div>
             </div>
-            <p class="text-[10px] text-slate-400 mt-1.5"><?= 100 - $xpProgressInLevel; ?> XP lagi untuk naik ke Level <?= $currentLevel + 1; ?></p>
         </div>
-    </div>
-
-    <!-- Kartu Streak Harian -->
-    <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Streak Belajar</span>
-            <span class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center font-bold text-sm border border-orange-200">
-                <i class="fa-solid fa-fire"></i>
-            </span>
-        </div>
-        <div class="text-2xl font-extrabold text-slate-800"><?= $streak; ?> Hari Aktif</div>
-        <p class="text-xs text-slate-500 mt-2">Login dan selesaikan materi tiap hari untuk melipatgandakan streak harian.</p>
-    </div>
-
-    <!-- Kartu Progres Materi -->
-    <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Penyelesaian Modul</span>
-            <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#0066CC] flex items-center justify-center font-bold text-sm border border-blue-200">
-                <i class="fa-solid fa-book-open"></i>
-            </span>
-        </div>
-        <div class="flex items-baseline gap-2">
-            <div class="text-2xl font-extrabold text-slate-800"><?= $totalMateriSelesai; ?> <span class="text-sm font-normal text-slate-400">/ <?= $totalMateriTersedia; ?></span></div>
-            <span class="text-xs font-semibold text-[#0066CC]">(<?= $progresMateriPersen; ?>%)</span>
-        </div>
-        <div class="w-full bg-slate-100 rounded-full h-2.5 mt-3 overflow-hidden">
-            <div class="bg-[#0066CC] h-2.5 rounded-full" style="width: <?= $progresMateriPersen; ?>%"></div>
-        </div>
-        <p class="text-[10px] text-slate-400 mt-1.5">Dari <?= $totalKelas; ?> kelas yang terdaftar</p>
-    </div>
-
-</div>
-
-<!-- GRID KONTEN UTAMA: TUGAS, KUIS & PENGUMUMAN -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-
-    <!-- KOLOM KIRI (2 Kolom): TENGGAT TUGAS & KUIS TERDEKAT -->
-    <div class="lg:col-span-2 space-y-6">
-
-        <!-- KARTU TUGAS TERDEKAT -->
-        <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800">Tugas Terdekat</h2>
-                    <p class="text-xs text-slate-500">Kumpulkan sebelum tenggat untuk mendapatkan bonus XP tepat waktu.</p>
+        <div class="mt-4 flex items-end gap-2.5 h-36">
+            <?php foreach ($grafikFokus as $g):
+                $tinggi = max(5, round(($g['menit'] / $maksMenit) * 100));
+            ?>
+                <div class="group flex-1 h-full flex flex-col justify-end items-center gap-1.5">
+                    <div class="relative w-full flex-1 flex items-end">
+                        <span class="absolute left-1/2 -translate-x-1/2 -top-1 px-2 py-0.5 rounded-lg bg-slate-800 text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10"><?= (int)$g['menit']; ?> mnt</span>
+                        <div class="w-full rounded-xl transition-all duration-300 group-hover:scale-y-105 origin-bottom <?= $g['hariIni'] ? 'bg-gradient-to-t from-amber-400 to-amber-300' : 'bg-gradient-to-t from-indigo-500 to-sky-400 group-hover:from-indigo-600 group-hover:to-sky-300'; ?>" style="height: <?= $tinggi; ?>%"></div>
+                    </div>
+                    <span class="text-xs font-semibold <?= $g['hariIni'] ? 'text-amber-700' : 'text-slate-500'; ?>"><?= e($g['label']); ?></span>
                 </div>
-                <a href="<?= base_url('pelajar/tugas.php'); ?>" class="text-xs font-bold text-[#0066CC] hover:underline">
-                    Lihat Semua Tugas &rarr;
-                </a>
-            </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
 
-            <?php if (empty($daftarTugas)): ?>
-                <div class="text-center py-8 text-slate-400 text-xs">
-                    <i class="fa-solid fa-circle-check text-3xl text-emerald-400 mb-2 block"></i>
-                    Belum ada tugas baru saat ini.
+    <section class="lg:col-span-3 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm lift flex flex-col">
+        <h2 class="text-base font-bold text-slate-800">Level dan XP</h2>
+        <div class="mt-3 flex items-center gap-3">
+            <div class="relative w-20 h-20 rounded-full shrink-0" style="background: conic-gradient(#3D7BBF <?= $progressPercent * 3.6; ?>deg, #E6F1FA 0);">
+                <div class="absolute inset-2.5 rounded-full bg-white grid place-items-center text-center leading-none">
+                    <div><div class="text-xs text-slate-500">Level</div><div class="text-xl font-extrabold text-indigo-600"><?= $currentLevel; ?></div></div>
                 </div>
-            <?php else: ?>
-                <div class="space-y-3">
-                    <?php foreach ($daftarTugas as $tgs): ?>
-                        <?php 
-                            $isOverdue = strtotime($tgs['tenggat_waktu']) < time();
-                            $sudahKumpul = !empty($tgs['status_kumpul']);
-                        ?>
-                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0066CC]">
-                                        <?= e($tgs['nama_kelas']); ?>
-                                    </span>
-                                    <span class="text-xs text-slate-400">
-                                        <i class="fa-regular fa-clock mr-1"></i>
-                                        Tenggat: <?= date('d M Y, H:i', strtotime($tgs['tenggat_waktu'])); ?>
-                                    </span>
-                                </div>
-                                <h3 class="text-sm font-bold text-slate-800"><?= e($tgs['judul']); ?></h3>
-                            </div>
+            </div>
+            <div>
+                <div class="text-xl font-extrabold text-slate-800"><?= number_format($currentXP); ?> XP</div>
+                <p class="text-xs text-slate-500"><?= max(0, 100 - $xpProgressInLevel); ?> XP lagi ke level <?= $currentLevel + 1; ?></p>
+            </div>
+        </div>
+        <div class="mt-auto pt-4 grid grid-cols-2 gap-2">
+            <div class="rounded-2xl bg-amber-100 p-3 hover:bg-amber-200 transition">
+                <i class="fa-solid fa-fire text-orange-500"></i>
+                <div class="text-base font-extrabold text-slate-800"><?= $streak; ?> hari</div>
+                <div class="text-xs text-slate-600">Streak</div>
+            </div>
+            <div class="rounded-2xl bg-emerald-100 p-3 hover:bg-emerald-200 transition">
+                <i class="fa-solid fa-book-open text-emerald-700"></i>
+                <div class="text-base font-extrabold text-slate-800"><?= $totalMateriSelesai; ?>/<?= $totalMateriTersedia; ?></div>
+                <div class="text-xs text-slate-600">Materi</div>
+            </div>
+        </div>
+    </section>
 
-                            <div class="flex items-center gap-3">
-                                <?php if ($sudahKumpul): ?>
-                                    <div class="text-right">
-                                        <span class="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold <?= ($tgs['status_kumpul'] === 'tepat_waktu') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'; ?>">
-                                            <i class="fa-solid <?= ($tgs['status_kumpul'] === 'tepat_waktu') ? 'fa-check' : 'fa-clock-rotate-left'; ?> mr-1"></i>
-                                            <?= ($tgs['status_kumpul'] === 'tepat_waktu') ? 'Tepat Waktu' : 'Terlambat'; ?>
-                                        </span>
-                                        <?php if ($tgs['nilai'] !== null): ?>
-                                            <div class="text-xs font-extrabold text-slate-800 mt-0.5">Nilai: <?= (int)$tgs['nilai']; ?>/100</div>
-                                        <?php else: ?>
-                                            <div class="text-[10px] text-slate-400 mt-0.5">Menunggu penilaian</div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-bold <?= $isOverdue ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'; ?>">
-                                        <?= $isOverdue ? 'Tenggat Terlewat' : 'Belum Dikumpul'; ?>
-                                    </span>
-                                    <a href="<?= base_url('pelajar/tugas.php?id=' . $tgs['id_tugas']); ?>" class="px-3.5 py-1.5 rounded-lg bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition">
-                                        Kumpulkan
-                                    </a>
-                                <?php endif; ?>
+    <section class="lg:col-span-4 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm lift">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-slate-800"><?= $namaBulan[$bulanIni]; ?> <?= $tahunIni; ?></h2>
+            <span class="text-xs text-slate-500"><i class="fa-solid fa-circle text-amber-400 text-[8px] mr-1"></i>Tenggat</span>
+        </div>
+        <div class="mt-3 grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-400">
+            <?php foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $h): ?><div><?= $h; ?></div><?php endforeach; ?>
+        </div>
+        <div class="mt-1 grid grid-cols-7 gap-1 text-center text-xs">
+            <?php for ($k = 1; $k < $hariPertama; $k++): ?><div></div><?php endfor; ?>
+            <?php for ($d = 1; $d <= $jumlahHari; $d++):
+                $hariIni = ($d === (int)date('j'));
+                $adaTenggat = in_array($d, $hariTenggat);
+            ?>
+                <div class="relative py-1 rounded-lg transition cursor-default <?= $hariIni ? 'bg-gradient-to-br from-sky-400 to-indigo-600 text-white font-bold' : 'text-slate-700 hover:bg-indigo-50'; ?>">
+                    <?= $d; ?>
+                    <?php if ($adaTenggat): ?><span class="absolute left-1/2 -translate-x-1/2 bottom-0 w-1.5 h-1.5 rounded-full bg-amber-400"></span><?php endif; ?>
+                </div>
+            <?php endfor; ?>
+        </div>
+    </section>
+
+    <!-- BARIS 2: KELAS, TUGAS, PENGUMUMAN -->
+    <section class="lg:col-span-5 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-slate-800">Kelas Saya</h2>
+            <a href="<?= base_url('pelajar/kelas.php'); ?>" class="text-xs font-bold text-indigo-600 hover:underline">Lihat semua</a>
+        </div>
+        <?php if (empty($progresKelas)): ?>
+            <div class="mt-3 p-5 rounded-2xl bg-slate-50 text-center text-sm text-slate-500">
+                Belum ada kelas. <a href="<?= base_url('pelajar/katalog.php'); ?>" class="font-bold text-indigo-600 hover:underline">Cari kelas</a>
+            </div>
+        <?php else: ?>
+            <div class="mt-3 space-y-2">
+                <?php foreach (array_slice($progresKelas, 0, 3) as $i => $pk):
+                    $persenKelas = ((int)$pk['total_materi'] > 0) ? round(((int)$pk['materi_selesai'] / (int)$pk['total_materi']) * 100) : 0;
+                ?>
+                    <a href="<?= base_url('pelajar/kelas.php'); ?>" class="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-indigo-50 hover:translate-x-1 transition">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br <?= $warnaKelas[$i % count($warnaKelas)]; ?> text-white grid place-items-center shrink-0">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-slate-800 truncate"><?= e($pk['nama_kelas']); ?></div>
+                            <div class="mt-1.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                <div class="h-full rounded-full bg-gradient-to-r <?= $warnaKelas[$i % count($warnaKelas)]; ?>" style="width: <?= $persenKelas; ?>%"></div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- KARTU KUIS AKTIF -->
-        <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800">Kuis Online Interaktif</h2>
-                    <p class="text-xs text-slate-500">Uji pemahaman materi dan raih skor 100 untuk bonus XP ekstra.</p>
-                </div>
-                <a href="<?= base_url('pelajar/kuis.php'); ?>" class="text-xs font-bold text-[#0066CC] hover:underline">
-                    Daftar Kuis &rarr;
-                </a>
+                        <div class="text-sm font-extrabold text-indigo-600"><?= $persenKelas; ?>%</div>
+                    </a>
+                <?php endforeach; ?>
             </div>
+        <?php endif; ?>
+    </section>
 
-            <?php if (empty($daftarKuis)): ?>
-                <div class="text-center py-6 text-slate-400 text-xs">Belum ada kuis tersedia.</div>
-            <?php else: ?>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <?php foreach ($daftarKuis as $ks): ?>
-                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col justify-between">
-                            <div>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0066CC]">
-                                    <?= e($ks['nama_kelas']); ?>
-                                </span>
-                                <h3 class="text-sm font-bold text-slate-800 mt-2"><?= e($ks['judul']); ?></h3>
-                                <div class="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                                    <span><i class="fa-solid fa-stopwatch mr-1"></i><?= (int)$ks['durasi_menit']; ?> Menit</span>
-                                    <span><i class="fa-solid fa-rotate-right mr-1"></i><?= (int)$ks['jml_percobaan']; ?>/<?= (int)$ks['maks_percobaan']; ?>x</span>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-700">
-                                    Skor Terbaik: <span class="text-[#0066CC]"><?= ($ks['skor_tertinggi'] !== null) ? (int)$ks['skor_tertinggi'] : '-'; ?></span>
-                                </span>
-                                <a href="<?= base_url('pelajar/kuis.php?id=' . $ks['id_kuis']); ?>" class="px-3 py-1.5 rounded-lg bg-[#0066CC] hover:bg-[#0052A3] text-white text-xs font-bold transition">
-                                    <?= ($ks['jml_percobaan'] > 0) ? 'Ulangi' : 'Mulai'; ?>
-                                </a>
-                            </div>
+    <section class="lg:col-span-4 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-slate-800">Tugas Terdekat</h2>
+            <a href="<?= base_url('pelajar/tugas.php'); ?>" class="text-xs font-bold text-indigo-600 hover:underline">Semua</a>
+        </div>
+        <?php if (empty($daftarTugas)): ?>
+            <p class="mt-3 text-sm text-slate-500">Tidak ada tugas.</p>
+        <?php else: ?>
+            <div class="mt-3 space-y-1.5">
+                <?php foreach (array_slice($daftarTugas, 0, 3) as $tgs):
+                    $sudahKumpul = !empty($tgs['status_kumpul']);
+                ?>
+                    <a href="<?= base_url('pelajar/tugas.php?id=' . $tgs['id_tugas']); ?>" class="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-indigo-50 hover:translate-x-1 transition">
+                        <div class="w-9 h-9 rounded-xl grid place-items-center shrink-0 <?= $sudahKumpul ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'; ?>">
+                            <i class="fa-solid <?= $sudahKumpul ? 'fa-check' : 'fa-clock'; ?>"></i>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-    </div>
-
-    <!-- KOLOM KANAN (1 Kolom): PENGUMUMAN & QUICK ACCESS -->
-    <div class="space-y-6">
-
-        <!-- KARTU PENGUMUMAN KELAS TERBARU -->
-        <div class="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
-            <div class="flex items-center gap-2 mb-4">
-                <i class="fa-solid fa-bullhorn text-[#0066CC]"></i>
-                <h2 class="text-base font-bold text-slate-800">Pengumuman Kelas</h2>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-bold text-slate-800 truncate"><?= e($tgs['judul']); ?></div>
+                            <div class="text-xs text-slate-500"><?= date('d M, H:i', strtotime($tgs['tenggat_waktu'])); ?></div>
+                        </div>
+                        <?php if ($sudahKumpul && $tgs['nilai'] !== null): ?>
+                            <span class="text-sm font-extrabold text-emerald-700"><?= (int)$tgs['nilai']; ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
             </div>
+        <?php endif; ?>
+    </section>
 
+    <div class="lg:col-span-3 flex flex-col gap-4">
+        <section class="bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm flex-1">
+            <h2 class="text-base font-bold text-slate-800">Pengumuman</h2>
             <?php if (empty($daftarPengumuman)): ?>
-                <div class="text-center py-6 text-slate-400 text-xs">Belum ada pengumuman kelas terbaru.</div>
-            <?php else: ?>
-                <div class="space-y-4">
-                    <?php foreach ($daftarPengumuman as $pgm): ?>
-                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-                            <span class="text-[10px] font-bold text-[#0066CC] bg-blue-100 px-2 py-0.5 rounded">
-                                <?= e($pgm['nama_kelas']); ?>
-                            </span>
-                            <h4 class="text-xs font-bold text-slate-800 mt-1.5"><?= e($pgm['judul']); ?></h4>
-                            <p class="text-xs text-slate-600 mt-1 line-clamp-2"><?= nl2br(e($pgm['isi'])); ?></p>
-                            <div class="text-[10px] text-slate-400 mt-2 flex items-center justify-between">
-                                <span>Oleh <?= e($pgm['nama_pengajar']); ?></span>
-                                <span><?= date('d M Y', strtotime($pgm['created_at'])); ?></span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                <p class="mt-3 text-sm text-slate-500">Belum ada pengumuman.</p>
+            <?php else: $pgm = $daftarPengumuman[0]; ?>
+                <div class="mt-3 p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 transition">
+                    <div class="text-xs font-semibold text-indigo-600 truncate"><?= e($pgm['nama_kelas']); ?></div>
+                    <div class="mt-0.5 text-sm font-bold text-slate-800"><?= e($pgm['judul']); ?></div>
+                    <div class="text-xs text-slate-500 mt-1"><?= e($pgm['nama_pengajar']); ?> · <?= date('d M Y', strtotime($pgm['created_at'])); ?></div>
                 </div>
             <?php endif; ?>
-        </div>
-
-        <!-- BANNER BOOKING MENTORING TUTOR -->
-        <div class="bg-gradient-to-br from-[#0F294A] to-[#153660] text-white rounded-xl p-5 shadow-sm space-y-3">
-            <div class="w-10 h-10 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300 text-lg">
-                <i class="fa-solid fa-handshake-angle"></i>
-            </div>
-            <h3 class="text-sm font-bold">Butuh Bimbingan Privat?</h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-                Jadwalkan sesi konsultasi daring bersama Tutor untuk membahas materi yang sulit atau asistensi tugas.
-            </p>
-            <a href="<?= base_url('pelajar/booking_tutor.php'); ?>" class="inline-block w-full text-center py-2 px-3 rounded-lg bg-[#0066CC] hover:bg-blue-600 text-white font-bold text-xs transition">
-                Jadwalkan Sesi Tutor
-            </a>
-        </div>
-
+        </section>
+        <a href="<?= base_url('pelajar/booking_tutor.php'); ?>" class="block p-5 rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400 text-white hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-200 transition">
+            <div class="text-base font-bold">Butuh bimbingan?</div>
+            <div class="text-xs text-white/85 mt-0.5">Booking sesi bareng tutor.</div>
+            <span class="inline-block mt-3 px-4 py-1.5 rounded-full bg-white text-indigo-700 text-sm font-bold">Booking</span>
+        </a>
     </div>
-
 </div>
 
 <?php require_once BASE_PATH . '/includes/layout_footer.php'; ?>

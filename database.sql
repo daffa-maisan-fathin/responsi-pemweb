@@ -462,7 +462,18 @@ INSERT INTO `sesi_pomodoro` (`id_sesi`, `id_pelajar`, `durasi_menit`, `tanggal`,
 (3, 5, 25, DATE_SUB(CURDATE(), INTERVAL 1 DAY), NOW()),
 (4, 5, 25, DATE_SUB(CURDATE(), INTERVAL 2 DAY), NOW()),
 (5, 6, 25, CURDATE(), NOW()),
-(6, 6, 25, DATE_SUB(CURDATE(), INTERVAL 1 DAY), NOW());
+(6, 6, 25, DATE_SUB(CURDATE(), INTERVAL 1 DAY), NOW()),
+(7, 5, 25, DATE_SUB(CURDATE(), INTERVAL 3 DAY), NOW()),
+(8, 5, 25, DATE_SUB(CURDATE(), INTERVAL 3 DAY), NOW()),
+(9, 5, 25, DATE_SUB(CURDATE(), INTERVAL 3 DAY), NOW()),
+(10, 5, 25, DATE_SUB(CURDATE(), INTERVAL 4 DAY), NOW()),
+(11, 5, 25, DATE_SUB(CURDATE(), INTERVAL 4 DAY), NOW()),
+(12, 5, 25, DATE_SUB(CURDATE(), INTERVAL 5 DAY), NOW()),
+(13, 5, 25, DATE_SUB(CURDATE(), INTERVAL 5 DAY), NOW()),
+(14, 5, 25, DATE_SUB(CURDATE(), INTERVAL 5 DAY), NOW()),
+(15, 5, 25, DATE_SUB(CURDATE(), INTERVAL 5 DAY), NOW()),
+(16, 5, 25, DATE_SUB(CURDATE(), INTERVAL 6 DAY), NOW()),
+(17, 5, 25, DATE_SUB(CURDATE(), INTERVAL 6 DAY), NOW());
 
 -- Flashcards
 INSERT INTO `flashcards` (`id_card`, `id_pelajar`, `pertanyaan`, `jawaban`, `status_hafal`) VALUES

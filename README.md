@@ -147,3 +147,7 @@ Perubahan utama pada versi ini (import ulang `database.sql` agar struktur baru t
 - **Keamanan:** celah login (password `123456` dapat masuk ke akun mana pun) dihapus; bug pendaftaran akun (jumlah kolom dan nilai INSERT tidak sama) diperbaiki.
 
 Tabel baru: `pengaturan_sistem`, `laporan`. Kolom baru: `users.deskripsi_tutor`, `users.portofolio_url`, `kelas.kategori`, `kelas.tingkat`, `kelas.kuota`, `booking_tutor.alasan_batal`.
+
+- **Tampilan baru:** gaya cerah berwarna (gradasi biru-ungu) dengan satu font, **Plus Jakarta Sans**, di semua halaman; halaman masuk dan daftar memakai panel deskripsi di sebelah formulir; beranda memiliki bagian Fitur, Cara kerja, dan FAQ; efek hover pada kartu, tombol, menu, dan baris tabel.
+- **Palet warna dan maskot:** palet Iced Denim (#5798D7), Frost (#E6F1FA), Pistachio (#B9C255), Lemon Cream (#EDE986), dengan sentuhan Raspberry Rose (#F2619C). Maskot paus beranimasi (`includes/maskot_paus.php`) tampil di dashboard, halaman Pomodoro (bereaksi saat fokus, jeda, dan istirahat), serta panel masuk dan daftar. Dashboard pelajar dibuat ringkas dalam satu layar.
+- **Latar laut dan suara air:** halaman masuk dan daftar memiliki latar ombak, gelembung, dan paus yang berenang kanan-kiri (`latarLaut()`); halaman Pomodoro punya tombol **Suara air** (dibuat dengan Web Audio API, tanpa file audio) yang menyala saat sesi berjalan. Profil pelajar menampilkan lencana yang diraih dan yang masih terkunci.

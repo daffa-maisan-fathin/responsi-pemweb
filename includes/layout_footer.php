@@ -3,12 +3,8 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-white border-t border-[#E2E8F0] py-4 px-6 text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div>
-                &copy; <?= date('Y'); ?> <strong class="text-slate-700">Questudy</strong> — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini.
-            </div>
-        </div>
+    <footer class="py-5 text-center text-sm text-slate-500">
+        &copy; <?= date('Y'); ?> <strong class="text-slate-700">Questudy</strong>
     </footer>
 
     <!-- JavaScript Mobile Sidebar Toggle & Interactivity -->
