@@ -131,7 +131,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
     </div>
     
     <div id="pesanKosongLive" class="hidden bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-sm text-slate-500">
+<<<<<<< HEAD
         <?= keadaanKosong('Tidak ada kelas yang sesuai dengan filter.'); ?>
+=======
+        Tidak ada kelas yang sesuai dengan filter pencarian instan Anda.
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
     </div>
 
     <script>

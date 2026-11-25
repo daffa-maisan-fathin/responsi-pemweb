@@ -231,6 +231,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Belum punya akun?
                     <a href="<?= base_url('auth/register.php'); ?>" class="font-bold text-indigo-600 hover:underline">Daftar</a>
                 </p>
+<<<<<<< HEAD
+=======
+
+                <!-- AKUN DEMO CEPAT (1-KLIK) -->
+                <div class="mt-4 p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i> Akun Demo Cepat (1-Klik)</span>
+                        <span class="text-[10px] text-slate-400 font-normal">Sandi: 123456</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="isiDemo('admin@questudy.id', true)" class="py-2 px-1 rounded-xl bg-white border border-violet-200 hover:border-violet-400 hover:bg-violet-50 text-xs font-bold text-violet-700 transition shadow-sm flex flex-col items-center gap-0.5" title="Klik untuk langsung login sebagai Admin">
+                            <span>Admin</span>
+                            <span class="text-[10px] text-violet-400 font-normal">Kelola Sistem</span>
+                        </button>
+                        <button type="button" onclick="isiDemo('pengajar@questudy.id', true)" class="py-2 px-1 rounded-xl bg-white border border-sky-200 hover:border-sky-400 hover:bg-sky-50 text-xs font-bold text-sky-700 transition shadow-sm flex flex-col items-center gap-0.5" title="Klik untuk langsung login sebagai Tutor">
+                            <span>Tutor</span>
+                            <span class="text-[10px] text-sky-400 font-normal">Kelas & EWS</span>
+                        </button>
+                        <button type="button" onclick="isiDemo('pelajar@questudy.id', true)" class="py-2 px-1 rounded-xl bg-white border border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50 text-xs font-bold text-emerald-700 transition shadow-sm flex flex-col items-center gap-0.5" title="Klik untuk langsung login sebagai Pelajar">
+                            <span>Pelajar</span>
+                            <span class="text-[10px] text-emerald-400 font-normal">Ruang Belajar</span>
+                        </button>
+                    </div>
+                </div>
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
             </div>
             <p class="mt-3 text-center">
                 <a href="<?= base_url(); ?>" class="text-sm text-slate-400 hover:text-indigo-600 transition"><i class="fa-solid fa-arrow-left mr-1"></i>Kembali ke beranda</a>
@@ -240,6 +265,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+<<<<<<< HEAD
+=======
+    function isiDemo(email, submitLangsung = false) {
+        document.getElementById('inputEmail').value = email;
+        document.getElementById('inputPassword').value = '123456';
+        if (submitLangsung) {
+            document.getElementById('formLogin').submit();
+        }
+    }
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
     document.getElementById('togglePw').addEventListener('click', function () {
         var p = document.getElementById('inputPassword');
         var tampil = p.type === 'password';

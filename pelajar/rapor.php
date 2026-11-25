@@ -152,7 +152,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-black tracking-wide text-slate-900 uppercase">QUESTUDY LMS</h1>
+<<<<<<< HEAD
             <p class="text-xs text-slate-600 font-medium">Platform belajar skill dan gamifikasi</p>
+=======
+            <p class="text-xs text-slate-600 font-medium">Platform Pembelajaran Terpadu & Gamifikasi (SDGs 4 - Quality Education)</p>
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
             <p class="text-xs text-slate-500">Transkrip & Rapor Hasil Evaluasi Belajar Peserta Didik</p>
         </div>
         <div class="text-right text-xs text-slate-600">
@@ -169,7 +173,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (LAYAR BIASA) -->
 <div class="space-y-1 mb-6 no-print">
+<<<<<<< HEAD
     <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+=======
+    <div class="flex items-center gap-2 text-xs text-slate-500">
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Rapor Nilai Pribadi</span>

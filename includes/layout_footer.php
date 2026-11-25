@@ -4,7 +4,11 @@
 
     <!-- FOOTER -->
     <footer class="py-5 text-center text-sm text-slate-500 no-print">
+<<<<<<< HEAD
         &copy; <?= date('Y'); ?> <strong class="text-slate-700">Questudy</strong>
+=======
+        &copy; <?= date('Y'); ?> <strong class="text-slate-700">Questudy</strong> — Platform LMS Gamifikasi & SDGs 4
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
     </footer>
 
     <?php if (isset($_SESSION['celebration'])): 
@@ -14,7 +18,13 @@
     <!-- MODAL PERAYAAN GAMIFIKASI & LEVEL UP -->
     <div id="modalCelebration" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
         <div class="relative w-full max-w-sm bg-white rounded-3xl p-6 sm:p-7 text-center shadow-2xl border-4 border-amber-300 transform scale-100 animate-in fade-in duration-300">
+<<<<<<< HEAD
             <?= maskotPausDepan('w-28 mx-auto mb-2'); ?>
+=======
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-amber-200 mb-3 animate-pulse">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
             <h3 class="text-xl font-black text-slate-800"><?= e($cel['title'] ?? 'Selamat!'); ?></h3>
             <p class="text-xs text-slate-500 mt-1"><?= e($cel['message'] ?? 'Pencapaian belajarmu luar biasa!'); ?></p>
             
@@ -47,7 +57,11 @@
 
             <?php if (!empty($cel['badges'])): ?>
                 <div class="p-2.5 rounded-2xl bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-300 text-xs text-amber-800 font-bold mb-3">
+<<<<<<< HEAD
                     Lencana Baru: <?= implode(', ', array_map('e', $cel['badges'])); ?>!
+=======
+                    🎉 Lencana Baru: <?= implode(', ', array_map('e', $cel['badges'])); ?>!
+>>>>>>> dceba9f4bc4eefc96aa5aa446415e92167a4ce0c
                 </div>
             <?php endif; ?>
 
