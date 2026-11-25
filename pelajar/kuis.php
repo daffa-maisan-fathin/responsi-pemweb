@@ -51,15 +51,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         ");
         $stmtSave->execute([$targetKuisId, $userId, $percobaanKe, $skor]);
 
-        // Bonus XP jika skor sempurna (100)
-        $msg = "Kuis selesai! Skor Anda: $skor/100 (Percobaan ke-$percobaanKe).";
+        $oldLevel = $_SESSION['level'] ?? 1;
+        $rw = null;
         if ($skor === 100) {
             $rw = tambahXP($conn, $userId, 'kuis_sempurna');
-            $msg .= " Sempurna! Anda mendapatkan bonus +40 XP!";
-            if (!empty($rw['badges_baru'])) {
-                $msg .= " Badge baru: " . implode(', ', $rw['badges_baru']);
-            }
+            $msg = "Kuis selesai! Skor Sempurna: 100/100! Bonus +40 XP!";
+        } else {
+            $rw = tambahXP($conn, $userId, 'selesai_materi');
+            $msg = "Kuis selesai! Skor Anda: $skor/100 (Percobaan ke-$percobaanKe). +15 XP!";
         }
+
+        if (!empty($rw['badges_baru'])) {
+            $msg .= " Badge baru: " . implode(', ', $rw['badges_baru']);
+        }
+
+        $_SESSION['celebration'] = [
+            'title' => ($skor >= 80) ? 'Luar Biasa, Kuis Tuntas!' : 'Kuis Berhasil Diselesaikan!',
+            'message' => 'Kamu menyelesaikan kuis dengan ' . $benar . ' dari ' . $totalSoal . ' soal benar.',
+            'skor' => $skor,
+            'xp' => $rw['xp_didapat'] ?? (($skor === 100) ? 40 : 15),
+            'level_baru' => (!empty($rw['level']) && $rw['level'] > $oldLevel) ? $rw['level'] : null,
+            'badges' => $rw['badges_baru'] ?? []
+        ];
 
         setFlash('success', $msg);
         header("Location: " . base_url('pelajar/kuis.php?id=' . $targetKuisId));
@@ -122,7 +135,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Kuis Online</span>
@@ -130,7 +143,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Evaluasi Pemahaman & Kuis</h1>
-            <p class="text-xs text-slate-500">Jawab pertanyaan pilihan ganda sesuai timer. Raih skor 100 untuk bonus +40 XP.</p>
         </div>
         <div>
             <a href="<?= base_url('pelajar/rapor.php'); ?>" class="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
@@ -248,7 +260,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 </h3>
 
                 <?php if (empty($daftarKuisSemua)): ?>
-                    <p class="text-xs text-slate-400 text-center py-6">Belum ada kuis pada kelas Anda.</p>
+                    <?= keadaanKosong('Belum ada kuis di kelasmu.'); ?>
                 <?php else: ?>
                     <div class="space-y-2">
                         <?php foreach ($daftarKuisSemua as $item): ?>

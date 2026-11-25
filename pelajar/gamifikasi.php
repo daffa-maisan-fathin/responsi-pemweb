@@ -48,7 +48,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screen 03) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Gamifikasi & Peringkat</span>
@@ -56,7 +56,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Pusat Gamifikasi & Prestasi</h1>
-            <p class="text-xs text-slate-500">Kumpulkan XP dari aktivitas belajar mandiri dan kelas untuk menaiki tangga reputasi leaderboard.</p>
         </div>
     </div>
 </div>

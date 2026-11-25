@@ -1,5 +1,15 @@
 # Questudy — LMS Gamifikasi, Ruang Belajar Pribadi & Peringatan Dini
-> **Tema Pembangunan Berkelanjutan (SDGs 4): Quality Education (Pendidikan Berkualitas, Inklusif, dan Setara)**
+> **Tema Pembangunan Berkelanjutan (SDGs 4): Quality Education (Pendidikan Berkualitas, Inklusif, dan Setara)**  
+> **Responsi 2 Praktikum Pemrograman Web I — Jurusan Informatika, Fakultas Teknik, Universitas Jenderal Soedirman (2026)**
+
+---
+
+### Tim Pengembang (Kelompok)
+| No | Nama Anggota | NIM | Peran Utama |
+|:---:|---|:---:|---|
+| **1** | **Daffa Maisan Fathin** | **H1D025054** | **Backend Developer** (Arsitektur Database MySQL, Logika Bisnis PHP, Integrasi Gamifikasi, Keamanan & Autentikasi) |
+| **2** | **Sari Nur Aini** | **H1D025082** | **Frontend Developer** (Implementasi Antarmuka Web, Komponen Interaktif Maskot Paus & Web Audio API, Integrasi Tailwind CSS & JavaScript) |
+| **3** | **Fattati Yumna Nurjanah** | **H1D025162** | **UI/UX Designer** (Perancangan Desain Antarmuka, Wireframing, Konsistensi Visual Pengguna, Aset Grafis & Media Showcase) |
 
 ---
 
@@ -37,19 +47,17 @@
 
 ---
 
-## Kredensial Akun Demo Siap Uji
+## Akun & Cara Login
 
-> **Kata sandi default untuk seluruh akun demo:** `123456`
+Versi ini tidak lagi menyediakan akun demo atau tombol login cepat. Cara masuk untuk tiap peran:
 
-| Peran (Role) | Alamat Email | Kata Sandi | Keterangan & Karakteristik Data Demo |
-|---|---|---|---|
-| **Administrator** | `admin@questudy.id` | `123456` | Kelola seluruh pengguna, verifikasi pengajar pending, atur bobot XP & ambang batas peringatan dini, moderasi konten. |
-| **Tutor 1 (Aktif)** | `pengajar@questudy.id` | `123456` | **Budi Santoso** — Mengampu kelas *Pemrograman Web Lanjut (PW2026)*. Memiliki 1 siswa dalam pemantauan EWS (*Rizky Ramadhan*). |
-| **Tutor 2 (Aktif)** | `siti@questudy.id` | `123456` | **Siti Aminah** — Mengampu kelas *Basis Data & SQL Komprehensif (BD2026)*. |
-| **Tutor 3 (Pending)**| `tutor.pending@questudy.id`| `123456` | **Reza Pratama** — Akun pengajar berstatus `pending` untuk demo fitur verifikasi *Terima / Tolak* di panel Admin. |
-| **Pelajar 1 (Aktif)** | `pelajar@questudy.id` | `123456` | **Ahmad Fauzi** — Siswa teladan (Level 5, 450 XP, Streak 7 hari, 3 Lencana terbuka, seluruh tugas tepat waktu, nilai kuis 100). |
-| **Pelajar 2 (Aktif)** | `dewi@questudy.id` | `123456` | **Dewi Lestari** — Siswa menengah (Level 3, 220 XP, Streak 3 hari, 2 Lencana terbuka, nilai rata-rata 80). |
-| **Pelajar 3 (Berisiko)**| `rizky@questudy.id` | `123456` | **Rizky Ramadhan** — Siswa berisiko untuk demo **Early Warning System** (1 tugas terlambat, nilai rendah 55, inaktif > 7 hari). |
+| Peran | Cara mendapatkan akun |
+|---|---|
+| **Pelajar** | Daftar sendiri di halaman `auth/register.php` (pilih peran Pelajar), akun langsung aktif. |
+| **Tutor (Pengajar)** | Daftar di `auth/register.php` (pilih peran Tutor, isi keahlian, deskripsi, portofolio). Status awal `pending`; Admin harus menyetujui lewat menu Pengguna sebelum bisa login. |
+| **Admin** | Tidak bisa mendaftar lewat web. Akun dibuat lewat `database_production.sql` (`admin@questudy.id`). Ganti kata sandi lewat menu Profil setelah login pertama. |
+
+> Untuk keperluan lokal/praktikum yang membutuhkan data contoh dan akun demo (sandi `123456`), gunakan `database.sql`. Untuk hosting, gunakan `database_production.sql`.
 
 ---
 
@@ -85,7 +93,7 @@
 │   ├── pengguna.php           # Screen 13: Verifikasi pengajar & manajemen akun
 │   └── aturan_moderasi.php    # Screen 14: Konfigurasi XP, ambang batas EWS & moderasi
 ├── auth/                      # Otentikasi Terpadu
-│   ├── login.php              # Login single-door dengan akses cepat akun demo
+│   ├── login.php              # Login single-door untuk semua peran
 │   ├── logout.php             # Logout aman & penghancuran sesi
 │   └── register.php           # Pendaftaran Pelajar & Tutor (pending)
 ├── config/
@@ -148,6 +156,25 @@ Perubahan utama pada versi ini (import ulang `database.sql` agar struktur baru t
 
 Tabel baru: `pengaturan_sistem`, `laporan`. Kolom baru: `users.deskripsi_tutor`, `users.portofolio_url`, `kelas.kategori`, `kelas.tingkat`, `kelas.kuota`, `booking_tutor.alasan_batal`.
 
+---
+
+## Fitur Interaktif Tambahan Terkini
+1. **Maskot Paus Interaktif & White-Noise Audio Alami (`includes/maskot_paus.php`, `pelajar/ruang_belajar.php`):**
+   - Animasi SVG paus yang merespons status belajar (mode fokus, mode istirahat, dan mode santai).
+   - Generator suara air alami (derau cokelat & tetesan air menenangkan) berbasis Web Audio API langsung dari peramban.
+2. **Cetak Rapor Akademik & Sertifikat Kelulusan Resmi (`pelajar/rapor.php`, `pelajar/sertifikat.php`):**
+   - Rapor cetak resmi dengan kop surat, transkrip nilai, dan kolom tanda tangan.
+   - Sertifikat kelulusan elegan dengan nomor seri unik verifikasi `QST/TAHUN/KELAS/USER` yang siap cetak atau unduh sebagai PDF.
+3. **Efek Perayaan Gamifikasi & Confetti Pesta (`includes/layout_footer.php`):**
+   - Pop-up modal perayaan saat kuis atau tugas diselesaikan dengan semburan efek animasi confetti warna-warni dan notifikasi naik level.
+4. **Pencarian Realtime Instan Katalog Kelas (`pelajar/katalog.php`):**
+   - Filter kartu kelas secara instan saat mengetik tanpa perlu reload halaman.
+
+
 - **Tampilan baru:** gaya cerah berwarna (gradasi biru-ungu) dengan satu font, **Plus Jakarta Sans**, di semua halaman; halaman masuk dan daftar memakai panel deskripsi di sebelah formulir; beranda memiliki bagian Fitur, Cara kerja, dan FAQ; efek hover pada kartu, tombol, menu, dan baris tabel.
 - **Palet warna dan maskot:** palet Iced Denim (#5798D7), Frost (#E6F1FA), Pistachio (#B9C255), Lemon Cream (#EDE986), dengan sentuhan Raspberry Rose (#F2619C). Maskot paus beranimasi (`includes/maskot_paus.php`) tampil di dashboard, halaman Pomodoro (bereaksi saat fokus, jeda, dan istirahat), serta panel masuk dan daftar. Dashboard pelajar dibuat ringkas dalam satu layar.
 - **Latar laut dan suara air:** halaman masuk dan daftar memiliki latar ombak, gelembung, dan paus yang berenang kanan-kiri (`latarLaut()`); halaman Pomodoro punya tombol **Suara air** (dibuat dengan Web Audio API, tanpa file audio) yang menyala saat sesi berjalan. Profil pelajar menampilkan lencana yang diraih dan yang masih terkunci.
+
+- **Paus menghadap depan di beranda** (`maskotPausDepan()`), banner laut untuk layar kecil di halaman masuk dan daftar, serta dashboard admin dan tutor yang disamakan dengan dashboard pelajar (grafik batang, ringkas satu layar). Grafik admin kini memakai data nyata (sesi fokus, tugas, kuis 7 hari terakhir).
+- **Penempatan paus:** paus menghadap depan muncul di banner ajakan pada beranda, kotak perayaan naik level/lencana, serta tampilan kosong ("Belum ada kelas", "Belum ada tugas", dan sejenisnya) lewat fungsi `keadaanKosong()`. Paus di belakang judul hero dihapus.
+- **Penyempurnaan:** pil XP di header dirapikan (lingkaran level, angka XP, bar progres), batang grafik naik perlahan, bar progres dan lingkaran level terisi perlahan, angka naik perlahan (`data-hitung`), kartu muncul bertahap, serta menu mobile di beranda. Subjudul halaman dihapus dan breadcrumb disembunyikan di HP. Animasi otomatis mati jika perangkat memakai pengaturan "kurangi gerakan".

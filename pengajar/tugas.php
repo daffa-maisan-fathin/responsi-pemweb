@@ -128,7 +128,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screen 10) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Penilaian Tugas</span>
@@ -136,7 +136,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Penilaian & Evaluasi Tugas</h1>
-            <p class="text-xs text-slate-500">Pantau ketepatan waktu pengumpulan, periksa berkas jawaban, dan berikan feedback nilai.</p>
         </div>
         <div>
             <form action="" method="GET" class="flex items-center gap-2">

@@ -71,7 +71,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Kelas Saya</span>
@@ -142,14 +142,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
 <!-- GRID KARTU KELAS -->
 <?php if (empty($kelasList)): ?>
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-12 text-center shadow-sm">
-        <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 text-[#0066CC] flex items-center justify-center text-2xl mb-4">
-            <i class="fa-solid fa-chalkboard"></i>
-        </div>
+        <?= maskotPausDepan('w-28 mx-auto mb-3'); ?>
         <h3 class="text-base font-bold text-slate-800 mb-1">Belum Ada Kelas yang Diikuti</h3>
         <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">Anda belum bergabung ke kelas manapun. Masukkan kode kelas yang diberikan oleh tutor atau pengajar Anda untuk memulai.</p>
-        <span class="text-xs font-bold text-[#0066CC] bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 inline-block">
-            Coba kode demo: PW2026 atau BD2026
-        </span>
     </div>
 <?php else: ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -205,8 +200,11 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     <a href="<?= base_url('pelajar/materi.php?id_kelas=' . $kls['id_kelas']); ?>" class="flex-1 text-center py-2 px-3 rounded-lg bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-xs transition shadow-sm">
                         Buka Materi
                     </a>
-                    <a href="<?= base_url('pelajar/tugas.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-3 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition" title="Lihat Tugas Kelas">
+                    <a href="<?= base_url('pelajar/tugas.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition" title="Lihat Tugas Kelas">
                         <i class="fa-solid fa-list-check"></i>
+                    </a>
+                    <a href="<?= base_url('pelajar/sertifikat.php?id_kelas=' . $kls['id_kelas']); ?>" class="py-2 px-2.5 rounded-lg bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-700 font-bold text-xs transition shadow-sm" title="Klaim & Cetak Sertifikat Kelulusan">
+                        <i class="fa-solid fa-award"></i>
                     </a>
                 </div>
             </div>

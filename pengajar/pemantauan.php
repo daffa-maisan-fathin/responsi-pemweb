@@ -124,7 +124,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screen 09) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Pemantauan & Peringatan Dini</span>
@@ -134,7 +134,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
                 <span>Pemantauan Pelajar (Peringatan Dini)</span>
             </h1>
-            <p class="text-xs text-slate-500">Sistem pendeteksi otomatis pelajar yang berisiko tertinggal, lengkap dengan pencatatan tindak lanjut.</p>
         </div>
         <!-- Filter Kelas Dropdown -->
         <form action="" method="GET" class="flex items-center gap-2">

@@ -68,7 +68,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <span class="text-slate-800 font-semibold">Rating & Ulasan</span>
     </div>
     <h1 class="text-2xl font-extrabold text-slate-800">Beri Rating & Ulasan Sesi Mentoring</h1>
-    <p class="text-xs text-slate-500">Masukan Anda sangat berharga untuk peningkatan mutu pembelajaran dan kualitas pendampingan tutor.</p>
 </div>
 
 <div class="max-w-xl mx-auto">

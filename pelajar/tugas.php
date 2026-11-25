@@ -90,11 +90,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                 // Reward XP jika tepat waktu
                 if ($statusKumpul === 'tepat_waktu') {
+                    $oldLevel = $_SESSION['level'] ?? 1;
                     $rw = tambahXP($conn, $userId, 'kumpul_tugas');
                     $msg = 'Tugas berhasil dikumpulkan tepat waktu! +50 XP ditambahkan.';
                     if (!empty($rw['badges_baru'])) {
                         $msg .= ' Anda membuka badge baru: ' . implode(', ', $rw['badges_baru']) . '!';
                     }
+                    $_SESSION['celebration'] = [
+                        'title' => 'Tugas Selesai Dikumpulkan!',
+                        'message' => 'Hebat! Kamu mengumpulkan tugas tepat waktu dan mendapatkan bonus pengalaman.',
+                        'xp' => 50,
+                        'level_baru' => (!empty($rw['level']) && $rw['level'] > $oldLevel) ? $rw['level'] : null,
+                        'badges' => $rw['badges_baru'] ?? []
+                    ];
                     setFlash('success', $msg);
                 } else {
                     setFlash('warning', 'Tugas berhasil dikumpulkan (Status: Terlambat). Tidak memperoleh bonus XP tepat waktu.');
@@ -149,7 +157,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Tugas</span>
@@ -157,7 +165,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Pengumpulan Tugas</h1>
-            <p class="text-xs text-slate-500">Kumpulkan tugas tepat waktu untuk mendapatkan +50 XP dan menjaga catatan akademik Anda.</p>
         </div>
     </div>
 </div>
@@ -175,7 +182,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </div>
 
             <?php if (empty($semuaTugas)): ?>
-                <p class="text-xs text-slate-400 text-center py-6">Tidak ada tugas pada kelas yang diikuti.</p>
+                <?= keadaanKosong('Belum ada tugas di kelasmu.'); ?>
             <?php else: ?>
                 <div class="space-y-2">
                     <?php foreach ($semuaTugas as $item): ?>

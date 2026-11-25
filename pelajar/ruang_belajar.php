@@ -159,7 +159,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screens 04-07) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Ruang Belajar Pribadi</span>
@@ -167,7 +167,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Ruang Belajar Terfokus & Mandiri</h1>
-            <p class="text-xs text-slate-500">Kombinasi Pomodoro fokus, kartu hafalan interaktif 3D, planner target, dan analisis statistik.</p>
         </div>
     </div>
 </div>
@@ -212,8 +211,8 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <?= maskotPaus('w-44 sm:w-52', 'maskotPomo'); ?>
                 <div id="maskotBicara" class="mt-2 px-4 py-1.5 rounded-full bg-sky-100 text-indigo-700 text-sm font-semibold">Halo! Siap belajar?</div>
                 <div class="mt-3 flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm">
-                    <button type="button" id="btnSuaraAir" class="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
-                        <i class="fa-solid fa-water"></i><span id="labelSuaraAir">Suara air: mati</span>
+                    <button type="button" id="btnSuaraAir" class="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition whitespace-nowrap">
+                        <i class="fa-solid fa-water"></i><span>Suara air</span><span id="labelSuaraAir" class="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-500">Mati</span>
                     </button>
                     <input type="range" id="volSuaraAir" min="0" max="100" value="50" class="w-24 accent-indigo-500" aria-label="Volume suara air">
                 </div>
@@ -301,7 +300,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 const m = document.getElementById('maskotPomo');
                 return !!m && (m.classList.contains('maskot-fokus') || m.classList.contains('maskot-istirahat'));
             }
-            function perbaruiTombol() { label.textContent = aktif ? 'Suara air: hidup' : 'Suara air: mati'; }
+            function perbaruiTombol() {
+                label.textContent = aktif ? 'Hidup' : 'Mati';
+                label.className = 'px-2 py-0.5 rounded-full text-xs ' + (aktif ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500');
+            }
             function aturVolume() { if (master) master.gain.value = (slider.value / 100) * 0.8; }
             function derau(jenis) {
                 const panjang = ctx.sampleRate * 4;

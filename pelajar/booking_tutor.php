@@ -116,7 +116,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screen 01) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pelajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Booking Tutor</span>
@@ -124,7 +124,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Booking Sesi Mentoring Privat</h1>
-            <p class="text-xs text-slate-500">Jadwalkan konsultasi akademik daring 1-on-1 bersama Tutor atau Tutor terpercaya.</p>
         </div>
     </div>
 </div>
@@ -200,10 +199,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </div>
 
             <?php if (empty($riwayatBooking)): ?>
-                <div class="text-center py-12 text-slate-400">
-                    <i class="fa-solid fa-calendar-xmark text-4xl mb-2 block"></i>
-                    <p class="text-xs">Belum ada riwayat booking sesi mentoring.</p>
-                </div>
+                <?= keadaanKosong('Belum ada riwayat booking sesi.'); ?>
             <?php else: ?>
                 <div class="space-y-4">
                     <?php foreach ($riwayatBooking as $rb): ?>
@@ -242,9 +238,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
                             <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                                 <div>
                                     <?php if ($rb['status'] === 'disetujui' && !empty($rb['link_meeting'])): ?>
-                                        <a href="<?= e($rb['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+                                        <a href="<?= e($rb['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm animate-pulse">
+                                            <span class="w-2 h-2 rounded-full bg-white"></span>
                                             <i class="fa-solid fa-video"></i>
-                                            <span>Buka Google Meet</span>
+                                            <span>Masuk Sesi Mentoring</span>
                                         </a>
                                     <?php elseif ($rb['status'] === 'disetujui'): ?>
                                         <span class="text-[11px] text-slate-400 italic">Tautan meeting akan segera diperbarui tutor</span>

@@ -43,6 +43,7 @@ if ($isLoggedIn) {
         .field:focus { outline: none; background: #fff; border-color: #78AADE; box-shadow: 0 0 0 4px rgba(120, 170, 222, .2); }
         .field:hover { border-color: #BED8F1; }
     </style>
+    <?= maskotGayaCss(); ?>
 </head>
 <body class="font-sans text-slate-800 antialiased bg-gradient-to-br from-sky-50 via-white to-violet-50">
 
@@ -51,7 +52,7 @@ if ($isLoggedIn) {
     <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         <a href="#beranda" class="flex items-center gap-2.5">
             <span class="w-10 h-10 rounded-2xl grad text-white grid place-items-center"><i class="fa-solid fa-graduation-cap"></i></span>
-            <span class="text-xl font-extrabold">Questudy</span>
+            <span class="text-xl font-extrabold max-[360px]:hidden">Questudy</span>
         </a>
         <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-slate-600">
             <a href="#beranda" class="px-4 py-2 rounded-full hover:bg-indigo-50 hover:text-indigo-600 transition">Beranda</a>
@@ -60,10 +61,19 @@ if ($isLoggedIn) {
             <a href="#faq" class="px-4 py-2 rounded-full hover:bg-indigo-50 hover:text-indigo-600 transition">FAQ</a>
         </nav>
         <div class="flex items-center gap-2">
+            <details class="md:hidden relative">
+                <summary class="w-10 h-10 rounded-full bg-white border border-indigo-100 text-indigo-600 grid place-items-center cursor-pointer hover:bg-indigo-50 transition"><i class="fa-solid fa-bars"></i></summary>
+                <div class="absolute right-0 mt-2 w-48 rounded-2xl bg-white shadow-xl border border-indigo-50 p-2 text-sm font-semibold text-slate-700">
+                    <a href="#fitur" class="block px-4 py-2.5 rounded-xl hover:bg-indigo-50">Fitur</a>
+                    <a href="#cara-kerja" class="block px-4 py-2.5 rounded-xl hover:bg-indigo-50">Cara kerja</a>
+                    <a href="#faq" class="block px-4 py-2.5 rounded-xl hover:bg-indigo-50">FAQ</a>
+                    <?php if (!$isLoggedIn): ?><a href="<?= base_url('auth/login.php'); ?>" class="block px-4 py-2.5 rounded-xl hover:bg-indigo-50">Masuk</a><?php endif; ?>
+                </div>
+            </details>
             <?php if ($isLoggedIn): ?>
                 <a href="<?= base_url($dashboardUrl); ?>" class="btn-grad px-5 py-2.5 rounded-full text-sm font-bold">Ke dashboard</a>
             <?php else: ?>
-                <a href="<?= base_url('auth/login.php'); ?>" class="px-5 py-2.5 rounded-full text-sm font-bold text-indigo-600 bg-white border border-indigo-100 hover:bg-indigo-50 hover:-translate-y-0.5 transition">Masuk</a>
+                <a href="<?= base_url('auth/login.php'); ?>" class="hidden md:inline-block px-5 py-2.5 rounded-full text-sm font-bold text-indigo-600 bg-white border border-indigo-100 hover:bg-indigo-50 hover:-translate-y-0.5 transition">Masuk</a>
                 <a href="<?= base_url('auth/register.php'); ?>" class="btn-grad px-5 py-2.5 rounded-full text-sm font-bold">Daftar</a>
             <?php endif; ?>
         </div>
@@ -75,9 +85,9 @@ if ($isLoggedIn) {
     <div class="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-sky-200/50 blur-3xl"></div>
     <div class="absolute top-20 right-0 w-96 h-96 rounded-full bg-violet-200/60 blur-3xl"></div>
     <div class="relative max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-            <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold">Platform belajar skill</span>
-            <h1 class="mt-5 text-5xl md:text-6xl font-extrabold leading-tight">Belajar skill baru,<br><span class="grad-text">tanpa bosan.</span></h1>
+        <div class="relative">
+            <div class="relative z-10">
+            <h1 class="mt-5 text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">Belajar skill baru,<br><span class="grad-text">tanpa bosan.</span></h1>
             <p class="mt-5 text-lg text-slate-500 max-w-md">Pilih kelas, belajar bareng tutor, dan kumpulkan XP di setiap langkah.</p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <?php if ($isLoggedIn): ?>
@@ -92,36 +102,36 @@ if ($isLoggedIn) {
                 <span><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>Banyak kategori</span>
                 <span><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>Tutor terverifikasi</span>
             </div>
+            </div>
         </div>
 
         <!-- Contoh tampilan -->
         <div>
-            <div class="relative h-[400px] hidden sm:block">
-                <div class="absolute top-8 left-0 w-64 p-5 rounded-3xl grad text-white shadow-2xl shadow-indigo-300/50 float-a">
+            <div class="relative h-[400px] max-sm:h-auto max-sm:grid max-sm:grid-cols-2 max-sm:gap-3">
+                <div class="absolute max-sm:static max-sm:col-span-2 max-sm:w-full top-8 left-0 w-64 p-5 rounded-3xl grad text-white shadow-2xl shadow-indigo-300/50 float-a">
                     <div class="text-sm font-semibold text-white/80">Level 5</div>
                     <div class="text-3xl font-extrabold">450 XP</div>
                     <div class="mt-3 h-2.5 rounded-full bg-white/30 overflow-hidden"><div class="h-full w-3/4 rounded-full bg-amber-300"></div></div>
                     <div class="mt-2 text-xs text-white/80">50 XP lagi ke level 6</div>
                 </div>
-                <div class="absolute top-0 right-4 bg-white rounded-3xl p-4 shadow-xl flex items-center gap-3 float-b hover:scale-105 transition">
+                <div class="absolute max-sm:static top-0 right-4 bg-white rounded-3xl p-4 shadow-xl flex items-center gap-3 float-b hover:scale-105 transition">
                     <span class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-500 grid place-items-center text-xl"><i class="fa-solid fa-fire"></i></span>
                     <div><div class="text-xs text-slate-500">Streak</div><div class="font-extrabold text-lg">7 hari</div></div>
                 </div>
-                <div class="absolute top-36 right-0 w-56 bg-white rounded-3xl p-5 shadow-xl float-a hover:scale-105 transition">
+                <div class="absolute max-sm:static max-sm:w-full top-36 right-0 w-56 bg-white rounded-3xl p-5 shadow-xl float-a hover:scale-105 transition">
                     <div class="text-sm font-semibold text-slate-500">Sesi fokus</div>
                     <div class="text-4xl font-extrabold">25:00</div>
                     <div class="mt-3 inline-block px-4 py-1.5 rounded-full grad text-white text-sm font-bold">Mulai</div>
                 </div>
-                <div class="absolute bottom-6 left-6 w-60 bg-white rounded-3xl p-4 shadow-xl flex items-center gap-3 float-b hover:scale-105 transition">
+                <div class="absolute max-sm:static max-sm:col-span-2 max-sm:w-full bottom-6 left-6 w-60 bg-white rounded-3xl p-4 shadow-xl flex items-center gap-3 float-b hover:scale-105 transition">
                     <span class="w-12 h-12 rounded-full bg-violet-100 text-violet-600 grid place-items-center font-extrabold">T</span>
                     <div><div class="font-bold">Desain Grafis</div><div class="text-sm text-amber-500"><i class="fa-solid fa-star"></i> 4,8 · Pemula</div></div>
                 </div>
-                <div class="absolute bottom-0 right-8 bg-amber-100 text-amber-800 rounded-2xl px-4 py-3 shadow-lg font-bold float-a hover:scale-105 transition">
+                <div class="absolute max-sm:static max-sm:col-span-2 max-sm:justify-self-center bottom-0 right-8 bg-amber-100 text-amber-800 rounded-2xl px-4 py-3 shadow-lg font-bold float-a hover:scale-105 transition">
                     <i class="fa-solid fa-trophy mr-1.5"></i>Lencana baru!
                 </div>
             </div>
-            <p class="text-center text-sm text-slate-400 mt-3">Contoh tampilan dengan data fiktif</p>
-        </div>
+
     </div>
 </section>
 
@@ -129,7 +139,7 @@ if ($isLoggedIn) {
 <section id="fitur" class="py-16">
     <div class="max-w-6xl mx-auto px-5">
         <div class="text-center max-w-xl mx-auto">
-            <h2 class="text-3xl md:text-4xl font-extrabold">Semua yang kamu butuh</h2>
+            <h2 class="text-3xl md:text-4xl font-extrabold">Semua yang kamu butuhkan</h2>
             <p class="mt-2 text-slate-500">Satu tempat untuk belajar skill.</p>
         </div>
         <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -146,7 +156,7 @@ if ($isLoggedIn) {
                 <div class="lift bg-white rounded-3xl p-6 border border-indigo-50 shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 grid place-items-center text-xl"><i class="fa-solid fa-bolt"></i></div>
                     <h3 class="mt-4 text-lg font-bold">XP dan lencana</h3>
-                    <p class="mt-1 text-slate-500">Belajar dapat poin, level, dan badge.</p>
+                    <p class="mt-1 text-slate-500">Belajar lalu dapat poin, badge, dan naik level.</p>
                 </div>
                 <div class="lift bg-white rounded-3xl p-6 border border-indigo-50 shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 grid place-items-center text-xl"><i class="fa-solid fa-brain"></i></div>
@@ -249,9 +259,10 @@ if ($isLoggedIn) {
 <!-- CTA -->
 <section class="py-16">
     <div class="max-w-5xl mx-auto px-5">
-        <div class="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400 text-white text-center p-10 md:p-14">
+        <div class="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400 text-white text-center p-10 md:p-14 max-sm:pb-28">
             <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10"></div>
-            <h2 class="relative text-3xl md:text-4xl font-extrabold">Siap mulai belajar?</h2>
+            <div class="absolute -bottom-8 sm:-bottom-10 right-3 sm:right-4 md:right-14 w-24 sm:w-28 md:w-44"><?= maskotPausDepan(); ?></div>
+            <h2 class="relative text-3xl md:text-4xl font-extrabold">Siap untuk mulai belajar?</h2>
             <p class="relative mt-2 text-white/85">Gabung sekarang dan raih XP pertamamu.</p>
             <?php if (!$isLoggedIn): ?>
                 <a href="<?= base_url('auth/register.php'); ?>" class="relative inline-block mt-6 px-8 py-4 rounded-full bg-white text-indigo-600 font-bold hover:scale-105 hover:shadow-xl transition">Daftar gratis</a>

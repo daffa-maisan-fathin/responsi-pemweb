@@ -191,7 +191,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Form -->
     <section class="flex items-center justify-center p-6 bg-gradient-to-br from-sky-50 via-white to-violet-50">
         <div class="w-full max-w-md">
-            <div class="bg-white rounded-[28px] shadow-xl shadow-indigo-100 border border-indigo-50 p-6">
+            <div class="lg:hidden relative overflow-hidden rounded-3xl h-36 mb-4 text-white bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400">
+                <?= latarLaut(); ?>
+                <div class="relative z-10 p-5">
+                    <div class="flex items-center gap-2 text-lg font-extrabold"><i class="fa-solid fa-graduation-cap"></i> Questudy</div>
+                    <p class="text-sm text-white/85 mt-1">Belajar jadi lebih seru.</p>
+                </div>
+            </div>
+                        <div class="bg-white rounded-[28px] shadow-xl shadow-indigo-100 border border-indigo-50 p-6">
                 <div class="w-12 h-12 mx-auto rounded-2xl grad grid place-items-center text-white text-xl shadow-lg shadow-indigo-200">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
@@ -207,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <form action="" method="POST" class="mt-5 space-y-3.5">
+                <form action="" method="POST" id="formLogin" class="mt-5 space-y-3.5">
                     <div class="relative">
                         <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input type="email" name="email" id="inputEmail" required placeholder="Email" value="<?= e($_POST['email'] ?? ''); ?>" class="field !pl-11">
@@ -220,22 +227,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button type="submit" class="btn-grad w-full py-3.5 rounded-full text-base font-bold">Masuk</button>
                 </form>
 
-                <p class="mt-5 text-center text-slate-500">
+                <p class="mt-4 text-center text-slate-500 text-sm">
                     Belum punya akun?
                     <a href="<?= base_url('auth/register.php'); ?>" class="font-bold text-indigo-600 hover:underline">Daftar</a>
                 </p>
-
-                <details class="mt-5 rounded-2xl bg-slate-50 p-3">
-                    <summary class="flex items-center justify-between text-sm font-semibold text-slate-600">
-                        <span>Coba dengan akun demo</span>
-                        <i class="fa-solid fa-chevron-down chev text-xs transition"></i>
-                    </summary>
-                    <div class="grid grid-cols-3 gap-2 mt-3">
-                        <button type="button" onclick="isiDemo('admin@questudy.id')" class="py-2 rounded-xl bg-white border border-slate-200 hover:border-violet-300 hover:bg-violet-50 text-sm font-semibold text-violet-700 transition">Admin</button>
-                        <button type="button" onclick="isiDemo('pengajar@questudy.id')" class="py-2 rounded-xl bg-white border border-slate-200 hover:border-sky-300 hover:bg-sky-50 text-sm font-semibold text-sky-700 transition">Tutor</button>
-                        <button type="button" onclick="isiDemo('pelajar@questudy.id')" class="py-2 rounded-xl bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-sm font-semibold text-emerald-700 transition">Pelajar</button>
-                    </div>
-                </details>
             </div>
             <p class="mt-3 text-center">
                 <a href="<?= base_url(); ?>" class="text-sm text-slate-400 hover:text-indigo-600 transition"><i class="fa-solid fa-arrow-left mr-1"></i>Kembali ke beranda</a>
@@ -245,10 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-    function isiDemo(email) {
-        document.getElementById('inputEmail').value = email;
-        document.getElementById('inputPassword').value = '123456';
-    }
     document.getElementById('togglePw').addEventListener('click', function () {
         var p = document.getElementById('inputPassword');
         var tampil = p.type === 'password';

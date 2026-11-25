@@ -137,7 +137,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Form -->
     <section class="flex items-center justify-center p-6 bg-gradient-to-br from-violet-50 via-white to-sky-50">
         <div class="w-full max-w-md py-6">
-            <div class="bg-white rounded-[28px] shadow-xl shadow-indigo-100 border border-indigo-50 p-6">
+            <div class="lg:hidden relative overflow-hidden rounded-3xl h-36 mb-4 text-white bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400">
+                <?= latarLaut(); ?>
+                <div class="relative z-10 p-5">
+                    <div class="flex items-center gap-2 text-lg font-extrabold"><i class="fa-solid fa-graduation-cap"></i> Questudy</div>
+                    <p class="text-sm text-white/85 mt-1">Belajar jadi lebih seru.</p>
+                </div>
+            </div>
+                        <div class="bg-white rounded-[28px] shadow-xl shadow-indigo-100 border border-indigo-50 p-6">
                 <h2 class="text-center text-3xl font-extrabold grad-text">Buat akun</h2>
                 <p class="text-center text-slate-500 mt-1">Gratis dan cepat.</p>
 

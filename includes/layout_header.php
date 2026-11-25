@@ -151,6 +151,34 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
         #mainSidebar a.bg-\[\#EFF6FF\] i, #mainSidebar a.bg-\[\#EFF6FF\] span, #mainSidebar a.bg-blue-50 i, #mainSidebar a.bg-blue-50 span { color: #fff !important; }
         #mainSidebar a:not(.bg-\[\#EFF6FF\]):not(.bg-blue-50):hover { background: #E6F1FA !important; transform: translateX(3px); }
     
+    
+        /* ===== Animasi halus dan responsif ===== */
+        @keyframes muncul { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @keyframes naikBatang { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+        @keyframes isiProgres { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        main > * { animation: muncul .45s ease backwards; }
+        main .grid > * { animation: muncul .5s ease backwards; }
+        main .grid > *:nth-child(1) { animation-delay: .04s; } main .grid > *:nth-child(2) { animation-delay: .10s; }
+        main .grid > *:nth-child(3) { animation-delay: .16s; } main .grid > *:nth-child(4) { animation-delay: .22s; }
+        main .grid > *:nth-child(5) { animation-delay: .28s; } main .grid > *:nth-child(6) { animation-delay: .34s; }
+        .batang-naik { transform-origin: bottom; animation: naikBatang .9s cubic-bezier(.2, .8, .2, 1) backwards; }
+        .group:nth-child(1) .batang-naik { animation-delay: .10s; } .group:nth-child(2) .batang-naik { animation-delay: .18s; }
+        .group:nth-child(3) .batang-naik { animation-delay: .26s; } .group:nth-child(4) .batang-naik { animation-delay: .34s; }
+        .group:nth-child(5) .batang-naik { animation-delay: .42s; } .group:nth-child(6) .batang-naik { animation-delay: .50s; }
+        .group:nth-child(7) .batang-naik { animation-delay: .58s; }
+        .bar-isi { transform-origin: left; animation: isiProgres 1s cubic-bezier(.2, .8, .2, 1) .2s backwards; }
+        img, svg { max-width: 100%; }
+        @media (max-width: 640px) {
+            .text-2xl { font-size: 22px !important; }
+            .text-3xl { font-size: 26px !important; }
+            main table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+        @media (hover: none) {
+            .lift:hover, main .grid > .bg-white.rounded-xl:hover { transform: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            main > *, main .grid > *, .batang-naik, .bar-isi { animation: none !important; }
+        }
     </style>
     <?= maskotGayaCss(); ?>
 </head>
@@ -161,7 +189,7 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
         <div class="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <!-- Brand / Logo -->
             <div class="flex items-center gap-3">
-                <button id="sidebarToggle" class="lg:hidden text-slate-300 hover:text-white p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button id="sidebarToggle" class="lg:hidden text-white hover:text-white p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <a href="<?= base_url(); ?>" class="flex items-center gap-2.5 group">
@@ -170,7 +198,7 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
                     </div>
                     <div>
                         <div class="flex items-center gap-1.5">
-                            <span class="text-xl font-extrabold tracking-tight text-white group-hover:text-blue-200 transition">Questudy</span>
+                            <span class="text-xl font-extrabold tracking-tight text-white group-hover:text-blue-100 transition max-[420px]:hidden">Questudy</span>
                         </div>
                         <p class="text-[10px] text-slate-300 tracking-wide hidden sm:block">Belajar lebih konsisten</p>
                     </div>
@@ -178,24 +206,22 @@ $pageTitle = $pageTitle ?? 'Questudy — LMS Gamifikasi & Early Warning';
             </div>
 
             <!-- User Info & Action Icons -->
-            <div class="flex items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <?php if ($user_role === 'pelajar'): ?>
                     <!-- Gamification XP & Level Pill for Students -->
-                    <a href="<?= base_url('pelajar/gamifikasi.php'); ?>" class="flex items-center gap-2 bg-white/20 border border-white/30 px-3 py-1.5 rounded-full hover:bg-blue-900/60 transition shadow-sm" title="Lihat Peringkat & Koleksi Badge">
-                        <div class="flex items-center text-amber-400 font-bold text-xs">
-                            <i class="fa-solid fa-bolt mr-1"></i>
-                            <span>Lvl <?= $user_level; ?></span>
-                        </div>
-                        <span class="w-1 h-1 rounded-full bg-slate-400"></span>
-                        <div class="flex items-center text-xs font-semibold text-amber-300">
-                            <span><?= number_format($user_xp); ?> XP</span>
-                        </div>
+                    <?php $pctXpHeader = ((int)$user_xp) % 100; ?>
+                    <a href="<?= base_url('pelajar/gamifikasi.php'); ?>" title="Level <?= (int)$user_level; ?> · <?= number_format($user_xp); ?> XP" class="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-white/20 border border-white/30 hover:bg-white/30 hover:-translate-y-0.5 transition whitespace-nowrap">
+                        <span class="w-7 h-7 rounded-full bg-amber-300 text-amber-800 grid place-items-center text-xs font-extrabold shadow-sm"><?= (int)$user_level; ?></span>
+                        <span class="leading-tight">
+                            <span class="block text-xs font-bold"><span data-hitung="<?= (int)$user_xp; ?>"><?= number_format($user_xp); ?></span> XP</span>
+                            <span class="block w-14 sm:w-20 h-1 rounded-full bg-white/30 overflow-hidden"><span class="bar-isi block h-full rounded-full bg-amber-300" style="width: <?= $pctXpHeader; ?>%"></span></span>
+                        </span>
                     </a>
                 <?php endif; ?>
 
                 <?php if ($user_id): ?>
                     <!-- User Profile Dropdown Pill -->
-                    <div class="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-slate-700">
+                    <div class="flex items-center gap-2.5 pl-1 sm:pl-3 sm:border-l sm:border-white/30">
                         <a href="<?= base_url('profil.php'); ?>" class="flex items-center gap-2 text-left group">
                             <?php 
                                 $avatarSrc = base_url('uploads/profil/' . e($user_foto));

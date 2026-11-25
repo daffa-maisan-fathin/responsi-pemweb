@@ -183,7 +183,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </div>
 
             <?php if (empty($daftarMateri)): ?>
-                <p class="text-xs text-slate-400 text-center py-4">Belum ada materi yang diunggah pengajar.</p>
+                <?= keadaanKosong('Belum ada materi dari tutor.'); ?>
             <?php else: ?>
                 <div class="space-y-1.5">
                     <?php foreach ($daftarMateri as $idx => $m): ?>

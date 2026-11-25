@@ -132,7 +132,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <span class="text-slate-800 font-semibold">Profil Pengguna</span>
     </div>
     <h1 class="text-2xl font-extrabold text-slate-800">Pengaturan Profil & Akun</h1>
-    <p class="text-xs text-slate-500">Kelola identitas diri, foto profil, dan kredensial keamanan akun Questudy Anda.</p>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

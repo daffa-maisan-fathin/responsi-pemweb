@@ -185,7 +185,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                 <div class="group flex-1 h-full flex flex-col justify-end items-center gap-1.5">
                     <div class="relative w-full flex-1 flex items-end">
                         <span class="absolute left-1/2 -translate-x-1/2 -top-1 px-2 py-0.5 rounded-lg bg-slate-800 text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10"><?= (int)$g['menit']; ?> mnt</span>
-                        <div class="w-full rounded-xl transition-all duration-300 group-hover:scale-y-105 origin-bottom <?= $g['hariIni'] ? 'bg-gradient-to-t from-amber-400 to-amber-300' : 'bg-gradient-to-t from-indigo-500 to-sky-400 group-hover:from-indigo-600 group-hover:to-sky-300'; ?>" style="height: <?= $tinggi; ?>%"></div>
+                        <div class="batang-naik w-full rounded-xl transition-all duration-300 group-hover:scale-y-105 origin-bottom <?= $g['hariIni'] ? 'bg-gradient-to-t from-amber-400 to-amber-300' : 'bg-gradient-to-t from-indigo-500 to-sky-400 group-hover:from-indigo-600 group-hover:to-sky-300'; ?>" style="height: <?= $tinggi; ?>%"></div>
                     </div>
                     <span class="text-xs font-semibold <?= $g['hariIni'] ? 'text-amber-700' : 'text-slate-500'; ?>"><?= e($g['label']); ?></span>
                 </div>
@@ -196,25 +196,25 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <section class="lg:col-span-3 bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm lift flex flex-col">
         <h2 class="text-base font-bold text-slate-800">Level dan XP</h2>
         <div class="mt-3 flex items-center gap-3">
-            <div class="relative w-20 h-20 rounded-full shrink-0" style="background: conic-gradient(#3D7BBF <?= $progressPercent * 3.6; ?>deg, #E6F1FA 0);">
+            <div class="relative w-20 h-20 rounded-full shrink-0" data-sudut="<?= $progressPercent * 3.6; ?>" style="--sudut: <?= $progressPercent * 3.6; ?>deg; background: conic-gradient(#3D7BBF var(--sudut), #E6F1FA 0);">
                 <div class="absolute inset-2.5 rounded-full bg-white grid place-items-center text-center leading-none">
                     <div><div class="text-xs text-slate-500">Level</div><div class="text-xl font-extrabold text-indigo-600"><?= $currentLevel; ?></div></div>
                 </div>
             </div>
             <div>
-                <div class="text-xl font-extrabold text-slate-800"><?= number_format($currentXP); ?> XP</div>
+                <div class="text-xl font-extrabold text-slate-800"><span data-hitung="<?= (int)$currentXP; ?>"><?= number_format($currentXP); ?></span> XP</div>
                 <p class="text-xs text-slate-500"><?= max(0, 100 - $xpProgressInLevel); ?> XP lagi ke level <?= $currentLevel + 1; ?></p>
             </div>
         </div>
         <div class="mt-auto pt-4 grid grid-cols-2 gap-2">
             <div class="rounded-2xl bg-amber-100 p-3 hover:bg-amber-200 transition">
                 <i class="fa-solid fa-fire text-orange-500"></i>
-                <div class="text-base font-extrabold text-slate-800"><?= $streak; ?> hari</div>
+                <div class="text-base font-extrabold text-slate-800"><span data-hitung="<?= (int)$streak; ?>"><?= (int)$streak; ?></span> hari</div>
                 <div class="text-xs text-slate-600">Streak</div>
             </div>
             <div class="rounded-2xl bg-emerald-100 p-3 hover:bg-emerald-200 transition">
                 <i class="fa-solid fa-book-open text-emerald-700"></i>
-                <div class="text-base font-extrabold text-slate-800"><?= $totalMateriSelesai; ?>/<?= $totalMateriTersedia; ?></div>
+                <div class="text-base font-extrabold text-slate-800"><span data-hitung="<?= (int)$totalMateriSelesai; ?>"><?= (int)$totalMateriSelesai; ?></span>/<?= $totalMateriTersedia; ?></div>
                 <div class="text-xs text-slate-600">Materi</div>
             </div>
         </div>
@@ -249,9 +249,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <a href="<?= base_url('pelajar/kelas.php'); ?>" class="text-xs font-bold text-indigo-600 hover:underline">Lihat semua</a>
         </div>
         <?php if (empty($progresKelas)): ?>
-            <div class="mt-3 p-5 rounded-2xl bg-slate-50 text-center text-sm text-slate-500">
-                Belum ada kelas. <a href="<?= base_url('pelajar/katalog.php'); ?>" class="font-bold text-indigo-600 hover:underline">Cari kelas</a>
-            </div>
+            <?= keadaanKosong('Belum ada kelas.', '<a href="' . base_url('pelajar/katalog.php') . '" class="mt-3 px-5 py-2 rounded-full bg-[#0066CC] hover:bg-[#0052A3] text-white text-sm font-bold">Cari kelas</a>'); ?>
         <?php else: ?>
             <div class="mt-3 space-y-2">
                 <?php foreach (array_slice($progresKelas, 0, 3) as $i => $pk):
@@ -264,10 +262,10 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         <div class="flex-1 min-w-0">
                             <div class="text-sm font-bold text-slate-800 truncate"><?= e($pk['nama_kelas']); ?></div>
                             <div class="mt-1.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                                <div class="h-full rounded-full bg-gradient-to-r <?= $warnaKelas[$i % count($warnaKelas)]; ?>" style="width: <?= $persenKelas; ?>%"></div>
+                                <div class="bar-isi h-full rounded-full bg-gradient-to-r <?= $warnaKelas[$i % count($warnaKelas)]; ?>" style="width: <?= $persenKelas; ?>%"></div>
                             </div>
                         </div>
-                        <div class="text-sm font-extrabold text-indigo-600"><?= $persenKelas; ?>%</div>
+                        <div class="text-sm font-extrabold text-indigo-600"><span data-hitung="<?= (int)$persenKelas; ?>"><?= (int)$persenKelas; ?></span>%</div>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -280,7 +278,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             <a href="<?= base_url('pelajar/tugas.php'); ?>" class="text-xs font-bold text-indigo-600 hover:underline">Semua</a>
         </div>
         <?php if (empty($daftarTugas)): ?>
-            <p class="mt-3 text-sm text-slate-500">Tidak ada tugas.</p>
+            <?= keadaanKosong('Tidak ada tugas. Santai dulu!'); ?>
         <?php else: ?>
             <div class="mt-3 space-y-1.5">
                 <?php foreach (array_slice($daftarTugas, 0, 3) as $tgs):
@@ -307,7 +305,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
         <section class="bg-white rounded-3xl p-5 border border-indigo-100 shadow-sm flex-1">
             <h2 class="text-base font-bold text-slate-800">Pengumuman</h2>
             <?php if (empty($daftarPengumuman)): ?>
-                <p class="mt-3 text-sm text-slate-500">Belum ada pengumuman.</p>
+                <?= keadaanKosong('Belum ada pengumuman.'); ?>
             <?php else: $pgm = $daftarPengumuman[0]; ?>
                 <div class="mt-3 p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 transition">
                     <div class="text-xs font-semibold text-indigo-600 truncate"><?= e($pgm['nama_kelas']); ?></div>

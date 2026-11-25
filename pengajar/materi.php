@@ -180,7 +180,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Kelola Materi</span>
@@ -188,7 +188,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Materi & Forum Diskusi</h1>
-            <p class="text-xs text-slate-500">Unggah bahan ajar teks, PDF, tautan dan pantau pelajar yang telah menyelesaikan modul.</p>
         </div>
         <div>
             <form action="" method="GET" class="flex items-center gap-2">

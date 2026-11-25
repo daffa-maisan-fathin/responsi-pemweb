@@ -169,7 +169,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER (Screen 11) -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Kelola Kelas</span>
@@ -177,7 +177,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Kelas & Pengumuman</h1>
-            <p class="text-xs text-slate-500">Buat kelas baru, kelola anggota pelajar, dan bagikan informasi akademik.</p>
         </div>
         <div>
             <!-- Tombol Trigger Modal Tambah Kelas -->
@@ -199,7 +198,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </h3>
 
             <?php if (empty($daftarKelas)): ?>
-                <p class="text-xs text-slate-400 py-6 text-center">Belum ada kelas yang dibuat.</p>
+                <?= keadaanKosong('Belum ada kelas yang dibuat.'); ?>
             <?php else: ?>
                 <div class="space-y-2">
                     <?php foreach ($daftarKelas as $k): ?>

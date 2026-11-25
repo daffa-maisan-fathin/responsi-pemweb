@@ -72,7 +72,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <!-- BREADCRUMB & HEADER -->
 <div class="space-y-1 mb-6">
-    <div class="flex items-center gap-2 text-xs text-slate-500">
+    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
         <a href="<?= base_url('pengajar/dashboard.php'); ?>" class="hover:text-[#0066CC]">Dashboard</a>
         <span>/</span>
         <span class="text-slate-800 font-semibold">Jadwal Mentoring</span>
@@ -80,7 +80,6 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800">Manajemen Sesi Mentoring Privat</h1>
-            <p class="text-xs text-slate-500">Konfirmasi jadwal konsultasi daring dari pelajar, atur tautan Google Meet, dan lihat ulasan.</p>
         </div>
     </div>
 </div>
@@ -149,9 +148,9 @@ require_once BASE_PATH . '/includes/layout_header.php';
                     <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <div>
                             <?php if (!empty($b['link_meeting'])): ?>
-                                <a href="<?= e($b['link_meeting']); ?>" target="_blank" class="text-xs font-bold text-[#0066CC] hover:underline flex items-center gap-1.5">
+                                <a href="<?= e($b['link_meeting']); ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
                                     <i class="fa-solid fa-video"></i>
-                                    <span>Tautan Google Meet: <?= e($b['link_meeting']); ?></span>
+                                    <span>Buka Ruang Meet</span>
                                 </a>
                             <?php endif; ?>
                         </div>

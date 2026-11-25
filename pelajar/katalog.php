@@ -54,16 +54,21 @@ require_once BASE_PATH . '/includes/layout_header.php';
     <p class="text-sm text-slate-500">Temukan kelas keterampilan dari tutor, lalu gabung langsung.</p>
 </div>
 
-<form action="" method="GET" class="bg-white rounded-xl border border-[#E2E8F0] p-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-    <input type="text" name="q" value="<?= e($q); ?>" placeholder="Cari kelas, tutor, atau keahlian" class="md:col-span-2 px-3.5 py-2.5 text-sm rounded-xl border border-slate-300">
-    <select name="kategori" class="px-3 py-2.5 text-sm rounded-xl border border-slate-300">
+<form action="" method="GET" id="formFilterKatalog" class="bg-white rounded-xl border border-[#E2E8F0] p-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div class="md:col-span-2 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input type="text" id="liveSearchInput" name="q" value="<?= e($q); ?>" placeholder="Cari kelas, tutor, atau keahlian secara instan..." class="w-full pl-9 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC]">
+    </div>
+    <select name="kategori" id="liveFilterKategori" class="px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC]">
         <option value="">Semua kategori</option>
         <?php foreach (daftarKategori() as $kat): ?>
             <option value="<?= e($kat); ?>" <?= ($kategori === $kat) ? 'selected' : ''; ?>><?= e($kat); ?></option>
         <?php endforeach; ?>
     </select>
     <div class="flex gap-2">
-        <select name="tingkat" class="flex-1 px-3 py-2.5 text-sm rounded-xl border border-slate-300">
+        <select name="tingkat" id="liveFilterTingkat" class="flex-1 px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0066CC]">
             <option value="">Semua tingkat</option>
             <option value="pemula" <?= ($tingkat === 'pemula') ? 'selected' : ''; ?>>Pemula</option>
             <option value="menengah" <?= ($tingkat === 'menengah') ? 'selected' : ''; ?>>Menengah</option>
@@ -75,15 +80,19 @@ require_once BASE_PATH . '/includes/layout_header.php';
 
 <?php if (empty($daftarKelas)): ?>
     <div class="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-sm text-slate-500">
-        Belum ada kelas yang cocok. Coba ubah kata kunci atau filter.
+        <?= keadaanKosong('Belum ada kelas yang cocok. Coba ubah kata kunci atau filter.'); ?>
     </div>
 <?php else: ?>
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+    <div id="gridKatalog" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         <?php foreach ($daftarKelas as $k):
             $penuh = ((int)$k['terisi'] >= (int)$k['kuota']);
             $persen = min(100, round(((int)$k['terisi'] / max(1, (int)$k['kuota'])) * 100));
+            $dataKeywords = strtolower($k['nama_kelas'] . ' ' . $k['nama_tutor'] . ' ' . $k['keahlian_tutor'] . ' ' . $k['kategori']);
         ?>
-            <div class="bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col">
+            <div class="kartu-kelas bg-white rounded-xl border border-[#E2E8F0] p-5 flex flex-col transition hover:shadow-md"
+                 data-keywords="<?= e($dataKeywords); ?>"
+                 data-kategori="<?= strtolower(e($k['kategori'])); ?>"
+                 data-tingkat="<?= strtolower(e($k['tingkat'])); ?>">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0066CC] text-xs font-bold"><?= e($k['kategori']); ?></span>
                     <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold"><?= ucfirst(e($k['tingkat'])); ?></span>
@@ -100,7 +109,7 @@ require_once BASE_PATH . '/includes/layout_header.php';
                         <span>Peserta</span><span><?= (int)$k['terisi']; ?> / <?= (int)$k['kuota']; ?></span>
                     </div>
                     <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div class="h-full bg-[#0066CC]" style="width: <?= $persen; ?>%"></div>
+                        <div class="bar-isi h-full bg-[#0066CC]" style="width: <?= $persen; ?>%"></div>
                     </div>
                 </div>
 
@@ -120,6 +129,50 @@ require_once BASE_PATH . '/includes/layout_header.php';
             </div>
         <?php endforeach; ?>
     </div>
+    
+    <div id="pesanKosongLive" class="hidden bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-sm text-slate-500">
+        <?= keadaanKosong('Tidak ada kelas yang sesuai dengan filter.'); ?>
+    </div>
+
+    <script>
+        const inputLive = document.getElementById('liveSearchInput');
+        const katLive = document.getElementById('liveFilterKategori');
+        const tingLive = document.getElementById('liveFilterTingkat');
+        const kartuSemua = document.querySelectorAll('.kartu-kelas');
+        const pesanKosong = document.getElementById('pesanKosongLive');
+
+        function filterKartuRealtime() {
+            const query = inputLive.value.toLowerCase().trim();
+            const kat = katLive.value.toLowerCase().trim();
+            const ting = tingLive.value.toLowerCase().trim();
+            let nampak = 0;
+
+            kartuSemua.forEach(card => {
+                const kw = card.getAttribute('data-keywords') || '';
+                const k = card.getAttribute('data-kategori') || '';
+                const t = card.getAttribute('data-tingkat') || '';
+
+                const cocokQuery = !query || kw.includes(query);
+                const cocokKat = !kat || k === kat;
+                const cocokTing = !ting || t === ting;
+
+                if (cocokQuery && cocokKat && cocokTing) {
+                    card.style.display = 'flex';
+                    nampak++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (pesanKosong) {
+                pesanKosong.classList.toggle('hidden', nampak > 0);
+            }
+        }
+
+        inputLive.addEventListener('input', filterKartuRealtime);
+        katLive.addEventListener('change', filterKartuRealtime);
+        tingLive.addEventListener('change', filterKartuRealtime);
+    </script>
 <?php endif; ?>
 
 <?php require_once BASE_PATH . '/includes/layout_footer.php'; ?>
